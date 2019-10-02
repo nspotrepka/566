@@ -27,8 +27,8 @@ python scripts/demo_audio.py
     pip install tensorflow
     pip install pydub
     ```
-3. Write some code.
-4. Pull any changes that may have happened while you were coding.
+3. Write some code!
+4. Pull any changes that may have been pushed while you were coding.
     ```
     git pull
     ```
@@ -37,8 +37,8 @@ python scripts/demo_audio.py
     ```
     git status
     ```
-    Don't add unnecessary files or folders. If you see a file or folder that
-    should not be committed, add it to the `.gitignore`.
+    Don't add unnecessary files or folders. If you see something that shouldn't
+    be committed, add it to the `.gitignore`.
 7. Add your files, commit, and push.
     ```
     git add --all
