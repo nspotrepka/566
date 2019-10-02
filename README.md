@@ -5,14 +5,11 @@ art through emotion.
 
 ## Setup
 
-1. Download [PMEmo](http://pmemo.hellohui.cn/) to the `data` folder.
-2. Convert MP3 files to WAV.
-```
-python scripts/convert_audio.py
-```
+See `data/README.md` for instructions on how to download the datasets.
 
 ## Demo
 
+To confirm that PMEmo is properly installed, run the following demo:
 ```
 python scripts/demo_audio.py
 ```
@@ -20,32 +17,34 @@ python scripts/demo_audio.py
 ## Development
 
 1. Clone this repository.
+  ```
+  git clone https://github.com/nspotrepka/mario.git
+  cd mario
+  ```
 2. Install the following dependencies:
-```
-pip install numpy
-pip install tensorflow
-pip install pydub
-```
+  ```
+  pip install numpy
+  pip install tensorflow
+  pip install pydub
+  ```
 3. Write some code.
 4. Pull any changes that may have happened while you were coding.
-```
-git pull
-```
-If there are conflicts, merge your changes.
-
-5. Double check what you have modified.
-```
-git status
-```
-Don't add unnecessary files or folders. If you see a file you don't want to
-commit, add it to the `.gitignore`.
-
-6. Add your files, commit, and push.
-```
-git add --all
-git commit -m "Change learning rate for image GAN"
-git push
-```
+  ```
+  git pull
+  ```
+5. Resolve all merge conflicts. Consult Stack Overflow for help, if needed.
+6. Double check the modifications you have made.
+  ```
+  git status
+  ```
+  Don't add unnecessary files or folders. If you see a file or folder that
+  should not be committed, add it to the `.gitignore`.
+7. Add your files, commit, and push.
+  ```
+  git add --all
+  git commit -m "Change learning rate for image GAN"
+  git push
+  ```
 
 ## License
 
