@@ -20,5 +20,5 @@ Audio Samples | `audio()` | (767, 1323000, 2) | 30 seconds, 44.1 kHz, 2 channels
 Arousal and valence values are between 0 and 1.
 
 There is no dynamic data for the first 15 seconds of each song.
-The 30 data points of dynamic emotion correspond to 30 half-seconds
+The 30 data points of dynamic emotion correspond to half-seconds
 between the 15 second mark and 30 second mark.
