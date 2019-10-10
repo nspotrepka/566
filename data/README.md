@@ -2,7 +2,7 @@
 
 ## PMEmo
 
-### Installation
+### Setup
 
 1. Download the [PMEmo](http://pmemo.hellohui.cn/) dataset and copy the
   `PMEmo2019` folder into this directory.
