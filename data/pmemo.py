@@ -16,28 +16,47 @@ def annotation(path):
         return np.array(data[1:], dtype=np.float64)
 
 def group(array):
-    unique, index = np.unique(array[:,0], return_index=True)
-    array = np.split(array[:,1:], index)[1:]
-    return [[unique[i], array[i]] for i in range(len(unique))]
+    _, index = np.unique(array[:,0], return_index=True)
+    return np.split(array[:,2:], index)[1:]
+
+def pad_clip(array, shape, value):
+    padding = [(0, 0) for x in range(len(shape) - 1)]
+    for i in range(shape[0]):
+        a = len(array[i])
+        if a < shape[1]:
+            padding[0] = (0, shape[1] - a)
+            array[i] = np.pad(array[i], padding, constant_values=(0.0, value))
+        elif a > shape[1]:
+            array[i] = array[i][:shape[1]]
+    return array
+
+def index():
+    array = annotation(directory + 'annotations/static_annotations.csv')
+    return array[:,0]
 
 def static():
     array = annotation(directory + 'annotations/static_annotations.csv')
-    return array
+    return array[:,1:]
 
 def static_std():
     array = annotation(directory + 'annotations/static_annotations_std.csv')
-    return array
+    return array[:,1:]
 
 def dynamic():
     array = annotation(directory + 'annotations/dynamic_annotations.csv')
-    return group(array)
+    array = group(array)
+    shape = (len(array), 30, 2)
+    array = pad_clip(array, shape, 0.5)
+    return np.array(array)
 
 def dynamic_std():
     array = annotation(directory + 'annotations/dynamic_annotations_std.csv')
-    return group(array)
+    array = group(array)
+    array = pad_clip(array, (len(array), 30, 2), 0.0)
+    return np.array(array)
 
 def chorus_files(extension):
-    id = static()[:,0]
+    id = index()
     return [directory + 'chorus/' + str(int(i)) + '.' + extension for i in id]
 
 def chorus_mp3():
@@ -54,10 +73,17 @@ def convert():
         song = AudioSegment.from_mp3(mp3[i])
         song.export(wav[i], format='wav')
 
-def chorus():
+def audio():
     songs = []
     for path in chorus_wav():
+        print(path)
         song = AudioSegment.from_wav(path)
         samples = np.array(song.get_array_of_samples(), dtype=np.float64)
         songs.append(samples / 32768)
-    return np.array(songs)
+    array = np.array(songs)
+    print("Clipping...")
+    array = pad_clip(array, (len(array), 2646000), 0.0)
+    print("Stacking...")
+    array = np.stack(array)
+    print("Reshaping...")
+    return array.reshape((len(array), 1323000, 2))
