@@ -20,15 +20,16 @@ def group(array):
     return np.split(array[:,2:], index)[1:]
 
 def pad_clip(array, shape, value):
-    padding = [(0, 0) for x in range(len(shape) - 1)]
-    for i in range(shape[0]):
-        a = len(array[i])
-        if a < shape[1]:
-            padding[0] = (0, shape[1] - a)
-            array[i] = np.pad(array[i], padding, constant_values=(0.0, value))
-        elif a > shape[1]:
-            array[i] = array[i][:shape[1]]
-    return array
+    a = shape[0]
+    b = shape[1]
+    result = np.zeros(shape)
+    for i in range(a):
+        x = len(array[i])
+        if x < b:
+            result[i][:x] = array[i]
+        elif x > b:
+            result[i] = array[i][:b]
+    return result
 
 def index():
     array = annotation(directory + 'annotations/static_annotations.csv')
@@ -83,7 +84,5 @@ def audio():
     array = np.array(songs)
     print("Clipping...")
     array = pad_clip(array, (len(array), 2646000), 0.0)
-    print("Stacking...")
-    array = np.stack(array)
     print("Reshaping...")
     return array.reshape((len(array), 1323000, 2))
