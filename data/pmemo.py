@@ -35,7 +35,7 @@ def index():
     array = annotation(directory + 'annotations/static_annotations.csv')
     return array[:,0]
 
-def static():
+def static_mean():
     array = annotation(directory + 'annotations/static_annotations.csv')
     return array[:,1:]
 
@@ -43,7 +43,13 @@ def static_std():
     array = annotation(directory + 'annotations/static_annotations_std.csv')
     return array[:,1:]
 
-def dynamic():
+# Load static emotion annotations
+def static():
+    mean = static_mean()
+    std = static_std()
+    return np.hstack([mean, std])
+
+def dynamic_mean():
     array = annotation(directory + 'annotations/dynamic_annotations.csv')
     array = group(array)
     shape = (len(array), 30, 2)
@@ -55,6 +61,12 @@ def dynamic_std():
     array = group(array)
     array = pad_clip(array, (len(array), 30, 2), 0.0)
     return np.array(array)
+
+# Load dynamic emotion annotations
+def dynamic():
+    mean = dynamic_mean()
+    std = dynamic_std()
+    return np.dstack([mean, std])
 
 def chorus_files(extension):
     id = index()
@@ -74,6 +86,7 @@ def convert():
         song = AudioSegment.from_mp3(mp3[i])
         song.export(wav[i], format='wav')
 
+# Load audio samples
 def audio():
     songs = []
     for path in chorus_wav():

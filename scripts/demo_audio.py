@@ -2,17 +2,13 @@ import data.pmemo as pmemo
 import numpy as np
 
 def main():
-    a = pmemo.static()
-    b = pmemo.static_std()
-    c = pmemo.dynamic()
-    d = pmemo.dynamic_std()
-    songs = pmemo.audio()
+    static = pmemo.static()
+    dynamic = pmemo.dynamic()
+    audio = pmemo.audio()
 
-    print('static = ' + str(a.shape))
-    print('static_std = ' + str(b.shape))
-    print('dynamic = ' + str(c.shape))
-    print('dynamic_std = ' + str(d.shape))
-    print('audio = ' + str(songs.shape))
+    print('static = ' + str(static.shape))
+    print('dynamic = ' + str(dynamic.shape))
+    print('audio = ' + str(audio.shape))
 
 if __name__ == "__main__":
     main()
