@@ -11,7 +11,12 @@ See `data/README.md` for instructions on how to download the datasets.
 
 To confirm that PMEmo is properly installed, run the following demo:
 ```
-python scripts/demo_audio.py
+python scripts/demo_pmemo.py
+```
+
+To confirm that GAPED is properly installed, run the following demo:
+```
+python scripts/demo_gaped.py
 ```
 
 ## Development
