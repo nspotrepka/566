@@ -19,7 +19,7 @@ Static Emotion | `static()` | (767, 4) | arousal, valence, arousal SD, valence S
 Dynamic Emotion | `dynamic()` | (767, 30, 4) | 30 samples of arousal, valence, arousal SD, valence SD
 Audio Samples | `audio()` | (767, 1323000, 2) | 30 seconds, 44.1 kHz, 2 channels
 
-Arousal and valence values are between 0 and 1.
+Values for arousal and valence are between 0 and 1.
 
 There is no dynamic data for the first 15 seconds of each song.
 The 30 data points of dynamic emotion correspond to half-seconds
@@ -39,6 +39,6 @@ Data | Function | Dimension | Description
 Emotion | `emotion()` | (730, 4) | arousal, valence, arousal SD, valence SD
 Images | `images()` | (730, 480, 640, 3) | 640 x 480, 3 channels
 
-Arousal and valence values are between 0 and 1.
+Values for arousal and valence are between 0 and 1.
 
 Note that the width and height dimensions are flipped.
