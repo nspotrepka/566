@@ -40,5 +40,3 @@ Emotion | `emotion()` | (730, 4) | arousal, valence, arousal SD, valence SD
 Images | `images()` | (730, 480, 640, 3) | 640 x 480, 3 channels
 
 Arousal and valence values are between 0 and 1.
-
-Please note that the width and height dimensions are flipped.
