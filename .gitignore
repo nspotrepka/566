@@ -1,4 +1,5 @@
 __pycache__
+fma_*
 data/*
 
 !data/README.md
