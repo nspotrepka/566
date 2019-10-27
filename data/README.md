@@ -1,6 +1,6 @@
 # Data
 
-## FMA
+## Free Music Archive
 
 ### Setup
 
