@@ -29,8 +29,8 @@ python scripts/demo_gaped.py
 2. Install the following dependencies:
     ```
     pip install numpy
-    pip install tensorflow
-    pip install pydub
+    pip install torch
+    pip install torchaudio
     ```
 3. Write some code!
 4. Pull any changes that may have been pushed while you were coding.
