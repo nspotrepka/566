@@ -17,7 +17,7 @@ unzip fma_metadata.zip
 unzip fma_small.zip
 ```
 
-If `unzip` does not work, try using 7zip:
+If `unzip` does not work, try using [7-Zip](https://www.7-zip.org/):
 ```
 brew install p7zip
 
@@ -27,8 +27,8 @@ brew install p7zip
 
 ### Description
 
-Data | Function | Dimension | Description
---- | --- | --- | ---
+Data | Dimension | Description
+--- | --- | ---
 Audio Samples | (767, 2, 1323000) | 2 channels, 30 seconds, 44.1 kHz
 Genre | (8000, 8) | one-hot encoding of 8 genres
 
@@ -41,8 +41,8 @@ Here are the 8 genres:
 
 ### Setup
 
-1. Download the [GAPED](https://www.unige.ch/cisa/index.php/download_file/view/288/296/) dataset and copy the
-  `GAPED` folder into this directory.
+Download the [GAPED](https://www.unige.ch/cisa/index.php/download_file/view/288/296/)
+dataset and copy the `GAPED` folder into this directory.
 
 ### Description
 
@@ -57,12 +57,8 @@ Arousal and valence values are between 0 and 1.
 
 ### Setup
 
-1. Download the [PMEmo](https://drive.google.com/drive/folders/1qDk6hZDGVlVXgckjLq9LvXLZ9EgK9gw0) dataset and copy the
-  `PMEmo2019` folder into this directory.
-2. Convert MP3 files to WAV.
-    ```
-    python scripts/convert_audio.py
-    ```
+Download the [PMEmo](https://drive.google.com/drive/folders/1qDk6hZDGVlVXgckjLq9LvXLZ9EgK9gw0)
+dataset and copy the `PMEmo2019` folder into this directory.
 
 ### Description
 
