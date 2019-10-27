@@ -3,9 +3,9 @@ import common.setup as setup
 from data.gaped import GAPED
 
 def main():
-    print("PyTorch", setup.torch_version())
-    print("CUDA is available:", setup.cuda_is_available())
-    print("CUDA device count:", setup.cuda_device_count())
+    print('PyTorch', setup.torch_version())
+    print('CUDA is available:', setup.cuda_is_available())
+    print('CUDA device count:', setup.cuda_device_count())
 
     batch_size = 8
     num_workers = 8
@@ -19,7 +19,7 @@ def main():
         image.to(device)
         emotion.to(device)
         count = min(count + batch_size, dataset.__len__())
-        print("Loaded", count, "/", dataset.__len__())
+        print('Loaded', count, '/', dataset.__len__())
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

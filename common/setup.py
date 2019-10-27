@@ -11,7 +11,7 @@ def cuda_device_count():
     return torch.cuda.device_count()
 
 def device():
-    return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    return torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def load(dataset, batch_size, num_workers=0):
     return DataLoader(dataset, batch_size, True, num_workers=num_workers)
