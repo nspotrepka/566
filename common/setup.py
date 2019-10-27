@@ -1,7 +1,7 @@
 import torch
 
-def print_torch_version():
-    print("PyTorch {}".format(torch.__version__))
+def torch_version():
+    return torch.__version__
 
 def cuda_is_available():
     return torch.cuda.is_available()

@@ -1,10 +1,12 @@
 import numpy as np
+import torchaudio
 import common.setup as setup
 from data.pmemo import PMEmo
-import torchaudio
 
 def main():
-    setup.print_torch_version()
+    print("PyTorch", setup.torch_version())
+    print("CUDA is available:", setup.cuda_is_available())
+    print("CUDA device count:", setup.cuda_device_count())
 
     batch_size = 8
     num_workers = 8
