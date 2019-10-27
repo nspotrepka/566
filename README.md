@@ -26,12 +26,9 @@ python scripts/demo_gaped.py
     git clone https://github.com/nspotrepka/mario.git
     cd mario
     ```
-2. Install the following dependencies:
+2. Install the required dependencies:
     ```
-    pip install numpy
-    pip install torch
-    pip install torchaudio
-    pip install torchvision
+    pip install numpy torch torchaudio torchvision scikit-image
     ```
 3. Write some code!
 4. Pull any changes that may have been pushed while you were coding.

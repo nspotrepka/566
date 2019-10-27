@@ -1,6 +1,9 @@
 import numpy as np
-from PIL import Image
+import os
+import torch
+from torch.utils.data import Dataset
 import re
+from skimage import io, transform
 
 directory = 'data/GAPED/'
 categories = ['A', 'H', 'N', 'P', 'Sn', 'Sp']
@@ -12,9 +15,10 @@ def raw():
     for category in categories:
         f = open(directory + category + file_suffix)
         lines = f.readlines()
-        for line in lines:
+        for i in range(len(lines)):
+            line = lines[i]
             split = line.split()
-            if len(split) > 0 and split[0] != 'Valence':
+            if i > 0 and len(split) > 0:
                 data.append(split)
     return data
 
@@ -37,21 +41,38 @@ def emotion():
         data.append(row)
     return np.array(data)
 
-# Get image data
-def images():
-    n = names()
-    w = 640
-    h = 480
-    images = np.empty((len(n), h, w, 3))
-    numbers = re.compile('[0-9]+')
-    for i in range(len(n)):
-        name = n[i]
-        category = numbers.split(name)[0]
-        img = Image.open(directory + category + '/' + name + '.bmp')
-        img = img.resize((w, h), Image.ANTIALIAS)
-        array = np.array(img)
-        if len(array.shape) == 2:
-            array = np.repeat(array, 3).reshape((h, w, 3))
-        images[i] = array
-        img.close()
-    return images
+class Rescale(object):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def __call__(self, image):
+        image = transform.resize(image, (self.width, self.height))
+        image = image[:,:,:3]
+        return image
+
+class GAPED(Dataset):
+    width = 640
+    height = 480
+
+    def __init__(self):
+        walk = os.walk(directory)
+        self.paths = {}
+        for dir in walk:
+            for file in dir[2]:
+                if file.endswith('.bmp'):
+                    name = file[:file.index('.bmp')]
+                    path = dir[0] + '/' + file
+                    self.paths[name] = path
+        self.names = names()
+        self.emotion = emotion()
+        self.transform = Rescale(GAPED.width, GAPED.height)
+
+    def __getitem__(self, i):
+        image = io.imread(self.paths[self.names[i]])
+        image = self.transform(image)
+        emotion = self.emotion[i]
+        return torch.from_numpy(image), torch.from_numpy(emotion)
+
+    def __len__(self):
+        return len(self.names)

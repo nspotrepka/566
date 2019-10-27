@@ -1,9 +1,8 @@
 import csv
-import os
 import numpy as np
+import os
 import torch
 from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
 import torchaudio
 
 directory = 'data/PMEmo2019/'
@@ -42,19 +41,19 @@ class PMEmo(Dataset):
     length = 30
 
     def __init__(self):
-        walk = os.walk(directory + "chorus/")
+        walk = os.walk(directory + 'chorus/')
         self.paths = {}
         for dir in walk:
             for file in dir[2]:
-                if file.endswith(".mp3"):
-                    i = int(file[:file.index(".mp3")])
+                if file.endswith('.mp3'):
+                    i = int(file[:file.index('.mp3')])
                     path = dir[0] + file
                     self.paths[i] = path
         self.chain = torchaudio.sox_effects.SoxEffectsChain()
-        self.chain.append_effect_to_chain("rate", [str(PMEmo.rate)])
-        self.chain.append_effect_to_chain("channels", [str(PMEmo.channels)])
-        self.chain.append_effect_to_chain("pad", ["0", str(PMEmo.length)])
-        self.chain.append_effect_to_chain("trim", ["0", str(PMEmo.length)])
+        self.chain.append_effect_to_chain('rate', [str(PMEmo.rate)])
+        self.chain.append_effect_to_chain('channels', [str(PMEmo.channels)])
+        self.chain.append_effect_to_chain('pad', ['0', str(PMEmo.length)])
+        self.chain.append_effect_to_chain('trim', ['0', str(PMEmo.length)])
         self.index = index()
         self.static = static()
 
@@ -69,7 +68,4 @@ class PMEmo(Dataset):
         return sound, emotion
 
     def __len__(self):
-        return len(self.static)
-
-    def loader(self, batch_size, num_workers=0):
-        return DataLoader(self, batch_size, True, num_workers=num_workers)
+        return len(self.index)

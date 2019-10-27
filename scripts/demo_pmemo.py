@@ -11,7 +11,7 @@ def main():
     batch_size = 8
     num_workers = 8
     dataset = PMEmo()
-    loader = dataset.loader(batch_size, num_workers)
+    loader = setup.load(dataset, batch_size, num_workers)
     device = setup.device()
 
     count = 0
