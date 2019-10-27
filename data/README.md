@@ -1,5 +1,58 @@
 # Data
 
+## FMA
+
+### Setup
+
+```
+cd data
+
+curl -O https://os.unil.cloud.switch.ch/fma/fma_metadata.zip
+curl -O https://os.unil.cloud.switch.ch/fma/fma_small.zip
+
+echo "f0df49ffe5f2a6008d7dc83c6915b31835dfe733  fma_metadata.zip" | sha1sum -c -
+echo "ade154f733639d52e35e32f5593efe5be76c6d70  fma_small.zip"    | sha1sum -c -
+
+unzip fma_metadata.zip
+unzip fma_small.zip
+```
+
+If `unzip` does not work, try using 7zip:
+```
+brew install p7zip
+
+7z x fma_metadata.zip
+7z x fma_small.zip
+```
+
+### Description
+
+Data | Function | Dimension | Description
+--- | --- | --- | ---
+Audio Samples | (767, 2, 1323000) | 2 channels, 30 seconds, 44.1 kHz
+Genre | (8000, 8) | one-hot encoding of 8 genres
+
+Here are the 8 genres:
+```
+['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
+```
+
+## GAPED
+
+### Setup
+
+1. Download the [GAPED](https://www.unige.ch/cisa/index.php/download_file/view/288/296/) dataset and copy the
+  `GAPED` folder into this directory.
+
+### Description
+
+Data | Dimension | Description
+--- | --- | ---
+Images | (730, 640, 480, 3) | 640 x 480, 3 channels
+Emotion | (730, 4) | arousal, valence, arousal SD, valence SD
+
+Arousal and valence values are between 0 and 1.
+
 ## PMEmo
 
 ### Setup
@@ -13,30 +66,9 @@
 
 ### Description
 
-Data | Function | Dimension | Description
---- | --- | --- | ---
-Static Emotion | `static()` | (767, 4) | arousal, valence, arousal SD, valence SD
-Dynamic Emotion | `dynamic()` | (767, 30, 4) | 30 samples of arousal, valence, arousal SD, valence SD
-Audio Samples | `audio()` | (767, 1323000, 2) | 30 seconds, 44.1 kHz, 2 channels
-
-Arousal and valence values are between 0 and 1.
-
-There is no dynamic data for the first 15 seconds of each song.
-The 30 data points of dynamic emotion correspond to half-seconds
-between the 15 second mark and 30 second mark.
-
-## GAPED
-
-### Setup
-
-1. Download the [GAPED](https://www.unige.ch/cisa/index.php/download_file/view/288/296/) dataset and copy the
-  `GAPED` folder into this directory.
-
-### Description
-
-Data | Function | Dimension | Description
---- | --- | --- | ---
-Emotion | `emotion()` | (730, 4) | arousal, valence, arousal SD, valence SD
-Images | `images()` | (730, 480, 640, 3) | 640 x 480, 3 channels
+Data | Dimension | Description
+--- | --- | ---
+Audio Samples | (767, 2, 1323000) | 2 channels, 30 seconds, 44.1 kHz
+Static Emotion | (767, 4) | arousal, valence, arousal SD, valence SD
 
 Arousal and valence values are between 0 and 1.

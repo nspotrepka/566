@@ -9,27 +9,36 @@ directory = 'data/GAPED/'
 categories = ['A', 'H', 'N', 'P', 'Sn', 'Sp']
 file_suffix = '_with SD.txt'
 
-# Get raw string annotations
+def paths():
+    walk = os.walk(directory)
+    paths = {}
+    for dir in walk:
+        for file in dir[2]:
+            if file.endswith('.bmp'):
+                name = file[:file.index('.bmp')]
+                path = dir[0] + '/' + file
+                paths[name] = path
+    return paths
+
 def raw():
     data = []
     for category in categories:
         f = open(directory + category + file_suffix)
         lines = f.readlines()
         for i in range(len(lines)):
-            line = lines[i]
-            split = line.split()
-            if i > 0 and len(split) > 0:
-                data.append(split)
+            if i > 0:
+                line = lines[i]
+                split = line.split()
+                if len(split) > 0:
+                    data.append(split)
     return data
 
-# Get file names
 def names():
     names = []
     for a in raw():
         names.append(a[0].split('.')[0])
     return names
 
-# Get emotion annotations
 def emotion():
     data = []
     for a in raw():
@@ -56,14 +65,7 @@ class GAPED(Dataset):
     height = 480
 
     def __init__(self):
-        walk = os.walk(directory)
-        self.paths = {}
-        for dir in walk:
-            for file in dir[2]:
-                if file.endswith('.bmp'):
-                    name = file[:file.index('.bmp')]
-                    path = dir[0] + '/' + file
-                    self.paths[name] = path
+        self.paths = paths()
         self.names = names()
         self.emotion = emotion()
         self.transform = Rescale(GAPED.width, GAPED.height)
