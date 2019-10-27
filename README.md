@@ -31,6 +31,7 @@ python scripts/demo_gaped.py
     pip install numpy
     pip install torch
     pip install torchaudio
+    pip install torchvision
     ```
 3. Write some code!
 4. Pull any changes that may have been pushed while you were coding.

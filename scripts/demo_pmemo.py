@@ -1,11 +1,10 @@
 import numpy as np
-import common.info as info
 import common.setup as setup
 from data.pmemo import PMEmo
 import torchaudio
 
 def main():
-    info.print_torch_version()
+    setup.print_torch_version()
 
     batch_size = 8
     num_workers = 8
