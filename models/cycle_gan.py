@@ -39,11 +39,13 @@ class ResidualBlock(nn.Module):
         super(ResidualBlock, self).__init__()
 
         self.net = nn.Sequential(
-            nn.Conv2d(channels, channels, kernel_size, stride, padding),
+            nn.ReflectionPad2d(padding),
+            nn.Conv2d(channels, channels, kernel_size, stride),
             nn.InstanceNorm2d(channels),
             nn.ReLU(True),
             nn.Dropout(0.5) if dropout else nn.Identity(),
-            nn.Conv2d(channels, channels, kernel_size, stride, padding),
+            nn.ReflectionPad2d(padding),
+            nn.Conv2d(channels, channels, kernel_size, stride),
             nn.InstanceNorm2d(channels))
 
     def forward(self, x):
