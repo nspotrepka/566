@@ -14,8 +14,8 @@ def cuda_device_count():
 def cpu():
     return torch.device('cpu')
 
-def gpu(instance=0):
-    return torch.device('cuda:' + str(instance))
+def gpu(device=0):
+    return torch.device('cuda:' + str(device))
 
 def device():
     return gpu() if torch.cuda.is_available() else cpu()
