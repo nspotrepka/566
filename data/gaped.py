@@ -50,14 +50,15 @@ def emotion():
         data.append(row)
     return np.array(data)
 
-class Rescale(object):
+class Transform(object):
     def __init__(self, width, height):
         self.width = width
         self.height = height
 
     def __call__(self, image):
-        image = transform.resize(image, (self.width, self.height))
         image = image[:,:,:3]
+        image = transform.resize(image, (self.width, self.height))
+        image = image.T
         return image
 
 class GAPED(Dataset):
@@ -68,13 +69,14 @@ class GAPED(Dataset):
         self.paths = paths()
         self.names = names()
         self.emotion = emotion()
-        self.transform = Rescale(GAPED.width, GAPED.height)
+        self.transform = Transform(GAPED.width, GAPED.height)
 
     def __getitem__(self, i):
         image = io.imread(self.paths[self.names[i]])
         image = self.transform(image)
-        emotion = self.emotion[i]
-        return torch.from_numpy(image), torch.from_numpy(emotion)
+        image = torch.from_numpy(image)
+        emotion = torch.from_numpy(self.emotion[i])
+        return image.float(), emotion.float()
 
     def __len__(self):
         return len(self.names)

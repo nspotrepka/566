@@ -69,7 +69,7 @@ class PMEmo(Dataset):
         except RuntimeError:
             audio = torch.zeros([PMEmo.channels, PMEmo.length * PMEmo.rate])
         emotion = torch.from_numpy(self.static[i])
-        return audio, emotion
+        return audio.float(), emotion.float()
 
     def __len__(self):
         return len(self.index)

@@ -9,14 +9,19 @@ See `data/README.md` for instructions on how to download the datasets.
 
 ## Demo
 
-To confirm that PMEmo is properly installed, run the following demo:
+To confirm that FMA is properly installed, run the following demo:
 ```
-python scripts/demo_pmemo.py
+python scripts/demo_fma.py
 ```
 
 To confirm that GAPED is properly installed, run the following demo:
 ```
 python scripts/demo_gaped.py
+```
+
+To confirm that PMEmo is properly installed, run the following demo:
+```
+python scripts/demo_pmemo.py
 ```
 
 ## Development
@@ -28,7 +33,8 @@ python scripts/demo_gaped.py
     ```
 2. Install the required dependencies:
     ```
-    pip install numpy torch torchaudio torchvision scikit-image
+    pip install numpy torch torchaudio scikit-image
+    pip install --upgrade torch
     ```
 3. Write some code!
 4. Pull any changes that may have been pushed while you were coding.

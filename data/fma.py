@@ -62,7 +62,7 @@ class FMA(Dataset):
         genre = self.genres[self.index[i]]
         one_hot_encoding = torch.zeros([len(self.list_of_genres)])
         one_hot_encoding[self.list_of_genres.index(genre)] = 1
-        return audio, one_hot_encoding
+        return audio.float(), one_hot_encoding.float()
 
     def __len__(self):
         return len(self.index)
