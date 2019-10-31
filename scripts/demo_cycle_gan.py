@@ -16,11 +16,9 @@ def main():
     device = setup.device()
 
     in_channels = 3
-    generator = setup.parallel(Generator(in_channels))
+    generator = setup.parallel(Generator(in_channels, 32))
     generator.to(device)
-    generator2 = setup.parallel(Generator(in_channels))
-    generator2.to(device)
-    discriminator = setup.parallel(Discriminator(in_channels))
+    discriminator = setup.parallel(Discriminator(in_channels, 64))
     discriminator.to(device)
 
     count = 0
@@ -29,9 +27,11 @@ def main():
         image = image.to(device)
         emotion = emotion.to(device)
 
-        generator(image)
-        generator2(image)
-        discriminator(image)
+        print('before:', image.shape)
+        g = generator(image)
+        print('generator:', g.shape)
+        d = discriminator(image)
+        print('discriminator:', d.shape)
 
         count = min(count + batch_size, dataset.__len__())
         print('Trained', count, '/', dataset.__len__())
