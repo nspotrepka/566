@@ -15,7 +15,7 @@ def cpu():
     return torch.device('cpu')
 
 def gpu(device=0):
-    return torch.device('cuda:' + str(device))
+    return torch.device('cuda:{}'.format(device))
 
 def device():
     return gpu() if torch.cuda.is_available() else cpu()
