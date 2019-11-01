@@ -49,9 +49,10 @@ def static():
 class PMEmo(Dataset):
     rate = 44100
     channels = 2
-    length = 30
+    length = 4
 
-    def __init__(self):
+    def __init__(self, size=512):
+        self.size = size
         self.paths = paths()
         self.index = index()
         self.static = static()
@@ -60,14 +61,20 @@ class PMEmo(Dataset):
         self.chain.append_effect_to_chain('channels', [str(PMEmo.channels)])
         self.chain.append_effect_to_chain('pad', ['0', str(PMEmo.length)])
         self.chain.append_effect_to_chain('trim', ['0', str(PMEmo.length)])
+        self.audio = {}
 
     def __getitem__(self, i):
-        path = self.paths[self.index[i]]
-        self.chain.set_input_file(path)
-        try:
-            audio, _ = self.chain.sox_build_flow_effects()
-        except RuntimeError:
-            audio = torch.zeros([PMEmo.channels, PMEmo.length * PMEmo.rate])
+        key = self.index[i]
+        if key in self.audio:
+            audio = self.audio[key]
+        else:
+            self.chain.set_input_file(self.paths[key])
+            try:
+                audio, _ = self.chain.sox_build_flow_effects()
+            except RuntimeError:
+                audio = torch.zeros([PMEmo.channels, PMEmo.length * PMEmo.rate])
+            audio = torch.stft(audio, self.size-1, self.size-1, center=False)
+            self.audio[key] = audio
         emotion = torch.from_numpy(self.static[i])
         return audio.float(), emotion.float()
 

@@ -65,19 +65,22 @@ class Transform(object):
         return image
 
 class GAPED(Dataset):
-    width = 512
-    height = 384
-
-    def __init__(self):
+    def __init__(self, size=512):
         self.paths = paths()
         self.names = names()
         self.emotion = emotion()
-        self.transform = Transform(GAPED.width, GAPED.height)
+        self.transform = Transform(size, size * 3 // 4)
+        self.image = {}
 
     def __getitem__(self, i):
-        image = io.imread(self.paths[self.names[i]])
-        image = self.transform(image)
-        image = torch.from_numpy(image)
+        key = self.names[i]
+        if key in self.image:
+            image = self.image[key]
+        else:
+            image = io.imread(self.paths[self.names[i]])
+            image = self.transform(image)
+            image = torch.from_numpy(image)
+            self.image[key] = image
         emotion = torch.from_numpy(self.emotion[i])
         return image.float(), emotion.float()
 
