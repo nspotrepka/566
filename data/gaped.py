@@ -65,7 +65,7 @@ class Transform(object):
         return image
 
 class GAPED(Dataset):
-    def __init__(self, size=512):
+    def __init__(self, size=256):
         self.paths = paths()
         self.names = names()
         self.emotion = emotion()

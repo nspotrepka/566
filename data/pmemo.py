@@ -47,11 +47,12 @@ def static():
     return np.hstack([mean, std])
 
 class PMEmo(Dataset):
-    rate = 44100
+    rate = 32768
     channels = 2
     length = 4
 
-    def __init__(self, size=512):
+    def __init__(self, size=256, offset=0):
+        assert offset >= 0 and offset < 30 // PMEmo.length
         self.size = size
         self.paths = paths()
         self.index = index()
@@ -59,8 +60,9 @@ class PMEmo(Dataset):
         self.chain = torchaudio.sox_effects.SoxEffectsChain()
         self.chain.append_effect_to_chain('rate', [str(PMEmo.rate)])
         self.chain.append_effect_to_chain('channels', [str(PMEmo.channels)])
-        self.chain.append_effect_to_chain('pad', ['0', str(PMEmo.length)])
-        self.chain.append_effect_to_chain('trim', ['0', str(PMEmo.length)])
+        self.chain.append_effect_to_chain('pad', ['0', '30'])
+        self.chain.append_effect_to_chain('trim',
+            [str(1 + PMEmo.length * offset), str(PMEmo.length)])
         self.audio = {}
 
     def __getitem__(self, i):
@@ -73,10 +75,13 @@ class PMEmo(Dataset):
                 audio, _ = self.chain.sox_build_flow_effects()
             except RuntimeError:
                 audio = torch.zeros([PMEmo.channels, PMEmo.length * PMEmo.rate])
-            audio = torch.stft(audio, self.size-1, self.size-1, center=False)
+            new_size = self.size * 2 - 1
+            audio = torch.stft(audio, new_size, new_size, center=False)
+            audio = audio.permute(0, 3, 1, 2)
+            audio = audio.contiguous().view(4, self.size, -1)
             self.audio[key] = audio
         emotion = torch.from_numpy(self.static[i])
         return audio.float(), emotion.float()
 
     def __len__(self):
-        return len(self.index)
+        return 730#len(self.index)

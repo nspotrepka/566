@@ -33,7 +33,7 @@ python scripts/demo_pmemo.py
     ```
 2. Install the required dependencies:
     ```
-    pip install numpy torch torchaudio scikit-image
+    pip install numpy torch torchaudio pytorch-lightning scikit-image
     pip install --upgrade torch
     ```
 3. Write some code!

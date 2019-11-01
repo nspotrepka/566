@@ -1,5 +1,8 @@
 import itertools
 import math
+import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -169,21 +172,22 @@ class GANLoss(nn.Module):
         target = target.expand_as(prediction)
         return self.loss_func(prediction, target)
 
-class CycleGAN(nn.Module):
-    def __init__(self, in_channels, out_channels, g_filters=64, d_filters=64,
+class CycleGAN(pl.LightningModule):
+    def __init__(self,
+                 loader, in_channels, out_channels, g_filters=64, d_filters=64,
                  residual_layers=9, dropout=False, learning_rate=0.0002,
-                 beta_1=0.5, init_type='normal', init_scale=0.02,
+                 beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  lambda_a=10.0, lambda_b=10.0, lambda_id=0.0, training=True):
         super(CycleGAN, self).__init__()
 
+        self.loader = loader
+        self.learning_rate = learning_rate
+        self.beta_1 = beta_1
+        self.beta_2 = beta_2
         self.lambda_a = lambda_a
         self.lambda_b = lambda_b
         self.lambda_id = lambda_id
         self.training = training
-        self.fake_a = None
-        self.fake_b = None
-        self.cycle_a = None
-        self.cycle_b = None
 
         # A -> B
         self.gen_a_to_b = Generator(in_channels, out_channels, g_filters,
@@ -200,7 +204,7 @@ class CycleGAN(nn.Module):
             if lambda_id > 0.0:
                 assert(in_channels == out_channels)
 
-            # Data Pools
+            # Data Pools?
 
             # A -> real/fake
             self.dis_a = Discriminator(in_channels, d_filters, init_type,
@@ -215,26 +219,10 @@ class CycleGAN(nn.Module):
             self.loss_func_cycle = nn.L1Loss()
             self.loss_func_id = nn.L1Loss()
 
-            # Optimizers
-            self.optimizer_g = optim.Adam(
-                itertools.chain(
-                    self.gen_a_to_b.parameters(),
-                    self.gen_b_to_a.parameters()),
-                lr=learning_rate,
-                betas=(beta_1, 0.999))
-            self.optimizer_d = optim.Adam(
-                itertools.chain(
-                    self.dis_a.parameters(),
-                    self.dis_b.parameters()),
-                lr=learning_rate,
-                betas=(beta_1, 0.999))
-            self.optimizers = [self.optimizer_g, self.optimizer_d]
-
-            # Schedulers
-
-    def forward(self, a, b):
-        self.real_a = a
-        self.real_b = b
+    def forward(self, input):
+        image_batch, audio_batch = input
+        self.real_a, _ = image_batch
+        self.real_b, _ = audio_batch
         self.fake_a = self.gen_b_to_a(self.real_b)
         self.fake_b = self.gen_a_to_b(self.real_a)
         self.cycle_a = self.gen_b_to_a(self.fake_b)
@@ -265,7 +253,7 @@ class CycleGAN(nn.Module):
         self.loss_cycle = self.loss_cycle_a + self.loss_cycle_b
 
         self.loss_g = self.loss_gan + self.loss_cycle + self.loss_id
-        self.loss_g.backward()
+        return self.loss_g
 
     def backward_d_func(self, net, real, fake):
         loss_real = self.loss_func_gan(net(real), True)
@@ -279,25 +267,44 @@ class CycleGAN(nn.Module):
         self.loss_d_b = self.backward_d_func(self.dis_b, self.real_b, fake_b)
         self.loss_d = self.loss_d_a + self.loss_d_b
         self.loss_d *= 0.5
-        self.loss_d.backward()
+        return self.loss_d
 
-    def train(self, a, b):
-        self.forward(a, b)
+    @pl.data_loader
+    def train_dataloader(self):
+        return self.loader
 
-        # Disable gradients in discriminators
-        for p in self.dis.parameters():
-            p.requires_grad = False
+    def configure_optimizers(self):
+        # Optimizers
+        self.optimizer_g = optim.Adam(
+            itertools.chain(
+                self.gen_a_to_b.parameters(),
+                self.gen_b_to_a.parameters()),
+            lr=self.learning_rate,
+            betas=(self.beta_1, self.beta_2))
+        self.optimizer_d = optim.Adam(
+            itertools.chain(
+                self.dis_a.parameters(),
+                self.dis_b.parameters()),
+            lr=self.learning_rate,
+            betas=(self.beta_1, self.beta_2))
+        self.optimizers = [self.optimizer_g, self.optimizer_d]
 
-        # Optimize generator
-        self.optimizer_g.zero_grad()
-        self.backward_g()
-        self.optimizer_g.step()
+        # Schedulers
+        self.schedulers = []
 
-        # Enable gradients in discriminators
-        for p in self.dis.parameters():
-            p.requires_grad = True
+        return self.optimizers, self.schedulers
 
-        # Optimize discriminator
-        self.optimizer_d.zero_grad()
-        self.backward_d()
-        self.optimizer_d.step()
+    def training_step(self, batch, batch_nb, optimizer_i):
+        if optimizer_i == 0:
+            self.forward(batch)
+            loss = self.backward_g()
+            dict = {'g_loss': loss}
+        elif optimizer_i == 1:
+            loss = self.backward_d()
+            dict = {'d_loss': loss}
+
+        return {
+            'loss': loss,
+            'progress_bar': dict,
+            'log': dict
+        }

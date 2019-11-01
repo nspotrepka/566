@@ -1,7 +1,6 @@
 import common.setup as setup
 from data.pmemo import PMEmo
 import time
-import torchaudio
 
 def main():
     print('PyTorch', setup.torch_version())
@@ -11,10 +10,10 @@ def main():
     device = setup.device()
 
     batch_size = 8
-    dataset = PMEmo()
+    dataset = PMEmo(256)
     loader = setup.load(dataset, batch_size)
 
-    torchaudio.initialize_sox()
+    setup.init_audio()
 
     for _ in range(2):
         start_time = time.time()
@@ -32,7 +31,7 @@ def main():
         end_time = time.time()
         print('Time:', end_time - start_time, 'sec')
 
-    torchaudio.shutdown_sox()
+    setup.shutdown_audio()
 
 if __name__ == '__main__':
     main()

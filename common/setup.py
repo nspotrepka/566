@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 from torch.nn import DataParallel
+import torchaudio
 
 def torch_version():
     return torch.__version__
@@ -25,3 +26,9 @@ def load(dataset, batch_size, num_workers=0):
 
 def parallel(model):
     return DataParallel(model) if cuda_device_count() > 1 else model
+
+def init_audio():
+    torchaudio.initialize_sox()
+
+def shutdown_audio():
+    torchaudio.shutdown_sox()
