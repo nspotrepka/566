@@ -173,7 +173,7 @@ class CycleGAN(nn.Module):
     def __init__(self, in_channels, out_channels, g_filters=64, d_filters=64,
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, init_type='normal', init_scale=0.02,
-                 lambda_a=10, lambda_b=10, lambda_id=0, training=True):
+                 lambda_a=10.0, lambda_b=10.0, lambda_id=0.0, training=True):
         super(CycleGAN, self).__init__()
 
         self.lambda_a = lambda_a
