@@ -3,7 +3,7 @@ import os
 import torch
 from torch.utils.data import Dataset
 import re
-from skimage import io, transform
+from skimage import io, transform, util
 
 directory = 'data/GAPED/'
 categories = ['A', 'H', 'N', 'P', 'Sn', 'Sp']
@@ -59,11 +59,14 @@ class Transform(object):
         image = image[:,:,:3]
         image = transform.resize(image, (self.width, self.height))
         image = image.T
+        padding = (self.width - self.height) // 2
+        image = util.pad(image, ((0, 0), (padding, padding), (0, 0)),
+            mode='reflect')
         return image
 
 class GAPED(Dataset):
-    width = 640
-    height = 480
+    width = 512
+    height = 384
 
     def __init__(self):
         self.paths = paths()
