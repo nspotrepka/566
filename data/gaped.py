@@ -51,25 +51,27 @@ def emotion():
     return np.array(data)
 
 class Transform(object):
-    def __init__(self, width, height):
+    def __init__(self, width, height, channels):
         self.width = width
         self.height = height
+        self.channels = channels
 
     def __call__(self, image):
-        image = image[:,:,:3]
         image = transform.resize(image, (self.width, self.height))
         image = image.T
         padding = (self.width - self.height) // 2
-        image = util.pad(image, ((0, 0), (padding, padding), (0, 0)),
-            mode='reflect')
+        image = util.pad(image,
+            ((0, self.channels), (padding, padding), (0, 0)), mode='reflect')
+        image = image[:self.channels,:,:]
         return image
 
 class GAPED(Dataset):
-    def __init__(self, size=256):
+    def __init__(self, size=256, image_channels=3):
+        self.channels = image_channels
         self.paths = paths()
         self.names = names()
         self.emotion = emotion()
-        self.transform = Transform(size, size * 3 // 4)
+        self.transform = Transform(size, size * 3 // 4, image_channels)
         self.image = {}
 
     def __getitem__(self, i):

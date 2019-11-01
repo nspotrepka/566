@@ -13,17 +13,12 @@ def main():
 
     device = setup.device()
 
-    data = Composite(256)
+    # size can be either 128 or 256
+    data = Composite(128, image_channels=3, audio_channels=2, type='train')
     loader = setup.load(data, batch_size=1)
 
-    # image_data = GAPED(256)
-    # image_loader = setup.load(image_data, batch_size=1)
-    # audio_data = PMEmo(256)
-    # audio_loader = setup.load(audio_data, batch_size=1)
-    # loader = zip(image_loader, audio_loader)
-
-    in_channels = 3
-    out_channels = 4
+    in_channels = data.in_channels
+    out_channels = data.out_channels
     model = setup.parallel(CycleGAN(loader, in_channels, out_channels, 32, 64))
     model = model.to(device)
 
