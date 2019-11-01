@@ -19,6 +19,7 @@ def main():
     out_channels = 3
     model = setup.parallel(CycleGAN(in_channels, out_channels, 8, 16))
     model = model.to(device)
+    
 
     count = 0
     for batch in loader:
