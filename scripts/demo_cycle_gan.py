@@ -17,12 +17,8 @@ def main():
 
     in_channels = 3
     out_channels = 3
-    model = setup.parallel(CycleGAN(in_channels, out_channels))
-    model.to(device)
-    for module in model.gen_a_to_b.net.modules():
-        if hasattr(module, 'weight'):
-            print(type(module.weight))
-    print(type(model.loss_func_gan.real_label))
+    model = setup.parallel(CycleGAN(in_channels, out_channels, 8, 16))
+    model = model.to(device)
 
     count = 0
     for batch in loader:
@@ -38,7 +34,7 @@ def main():
 
         count = min(count + batch_size, dataset.__len__())
         print('Trained', count, '/', dataset.__len__())
-        print('Time:', end_time - start_time, )
+        print('Time:', end_time - start_time, 'sec')
 
 if __name__ == '__main__':
     main()
