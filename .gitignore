@@ -2,7 +2,6 @@
 __pycache__
 
 data/*
-fma_*
 lightning_logs/*
 
 !data/README.md
