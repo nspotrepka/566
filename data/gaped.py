@@ -50,29 +50,41 @@ def emotion():
         data.append(row)
     return np.array(data)
 
-class Transform(object):
+class ImageTransform(object):
     def __init__(self, width, height, channels):
         self.width = width
         self.height = height
         self.channels = channels
+        self.padding = (self.width - self.height) // 2
 
-    def __call__(self, image):
-        image = transform.resize(image, (self.width, self.height))
-        image = image.T
-        padding = (self.width - self.height) // 2
-        image = util.pad(image,
-            ((0, self.channels), (padding, padding), (0, 0)), mode='reflect')
-        image = image[:self.channels,:,:]
+    def __call__(self, image, reverse=False):
+        if reverse:
+            # Crop height
+            # image = image[:, self.padding:self.padding + self.height, :]
+            # Transpose dimensions
+            image = image.T
+        else:
+            # Resize width and height
+            image = transform.resize(image, (self.width, self.height))
+            # Transpose dimensions
+            image = image.T
+            # Pad channels and height
+            image = util.pad(image,
+                ((0, self.channels), (self.padding, self.padding), (0, 0)),
+                mode='reflect')
+            # Crop channels
+            image = image[:self.channels, :, :]
         return image
 
 class GAPED(Dataset):
-    def __init__(self, size=256, image_channels=3):
+    def __init__(self, size=256, image_channels=3, cache=False):
         self.channels = image_channels
         self.paths = paths()
         self.names = names()
         self.emotion = emotion()
-        self.transform = Transform(size, size * 3 // 4, image_channels)
+        self.transform = ImageTransform(size, size * 3 // 4, image_channels)
         self.image = {}
+        self.cache = cache
 
     def __getitem__(self, i):
         key = self.names[i]
@@ -82,7 +94,8 @@ class GAPED(Dataset):
             image = io.imread(self.paths[self.names[i]])
             image = self.transform(image)
             image = torch.from_numpy(image)
-            self.image[key] = image
+            if self.cache:
+                self.image[key] = image
         emotion = torch.from_numpy(self.emotion[i])
         return image.float(), emotion.float()
 

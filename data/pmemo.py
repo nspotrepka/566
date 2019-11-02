@@ -46,6 +46,39 @@ def static():
     std = static_std()
     return np.hstack([mean, std])
 
+class AudioTransform(object):
+    def __init__(self, size, audio_channels):
+        self.size = size
+        # This is not an intuitive FFT size, but we get good dimensions from it
+        self.fft_size = 2 * size - 1
+        self.audio_channels = audio_channels
+
+    def __call__(self, audio, reverse=False):
+        if reverse:
+            # Separate audio channels with real/imag
+            audio = audio.contiguous().view(
+                self.audio_channels, 2, self.size, self.size)
+            # Permute dimensions
+            audio = audio.permute(0, 2, 3, 1)
+            # Extend time to account for samples that were clipped in FFT
+            new_audio = torch.zeros(
+                self.audio_channels, self.size, self.size + 1, 2)
+            new_audio[:, :, :self.size, :] = audio
+            # Perform inverse FFT
+            audio = torchaudio.functional.istft(
+                new_audio, self.fft_size, self.fft_size, center=False,
+                length = 2 * self.size * self.size)
+        else:
+            # Perform FFT
+            audio = torch.stft(
+                audio, self.fft_size, self.fft_size, center=False)
+            # Permute dimensions
+            audio = audio.permute(0, 3, 1, 2)
+            # Combine audio channels with real/imag
+            audio = audio.contiguous().view(
+                self.audio_channels * 2, self.size, self.size)
+        return audio
+
 class PMEmo(Dataset):
     rate = 32768
     full_length = 30
@@ -53,7 +86,7 @@ class PMEmo(Dataset):
     def length(size):
         return int(4 * (size / 256) ** 2)
 
-    def __init__(self, size=256, offset=0, audio_channels=2):
+    def __init__(self, size=256, audio_channels=2, offset=0, cache=False):
         self.length = PMEmo.length(size)
         assert offset >= 0 and offset < PMEmo.full_length // self.length
         self.size = size
@@ -68,7 +101,9 @@ class PMEmo(Dataset):
         self.chain.append_effect_to_chain('pad', ['0', str(PMEmo.full_length)])
         self.chain.append_effect_to_chain('trim',
             [str(1 + self.length * offset), str(self.length)])
+        self.transform = AudioTransform(size, audio_channels)
         self.audio = {}
+        self.cache = cache
 
     def __getitem__(self, i):
         key = self.index[i]
@@ -79,14 +114,11 @@ class PMEmo(Dataset):
             try:
                 audio, _ = self.chain.sox_build_flow_effects()
             except RuntimeError:
-                dim = [self.audio_channel, self.length * PMEmo.rate]
-                audio = torch.zeros(dim)
-            # This is not a great FFT size, but we get good dimensions from it
-            fft_size = 2 * self.size - 1
-            audio = torch.stft(audio, fft_size, fft_size, center=False)
-            audio = audio.permute(0, 3, 1, 2)
-            audio = audio.contiguous().view(self.channels, self.size, -1)
-            self.audio[key] = audio
+                audio = torch.zeros(
+                    [self.audio_channels, self.length * PMEmo.rate])
+            audio = self.transform(audio)
+            if self.cache:
+                self.audio[key] = audio
         emotion = torch.from_numpy(self.static[i])
         return audio.float(), emotion.float()
 

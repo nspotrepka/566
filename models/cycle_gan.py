@@ -10,6 +10,7 @@ import torch.optim as optim
 # Test normal init vs. xavier normal init
 # Test no dropout vs. dropout
 # Test generator 64 vs. 32
+# Test input size 128 vs 256 (vs 512?)
 
 def init_module(module, init_type, init_scale):
     if type(module) == nn.Conv2d or type(module) == nn.ConvTranspose2d:
@@ -202,7 +203,7 @@ class CycleGAN(pl.LightningModule):
         if training:
             # Dimensions must match if using identity loss
             if lambda_id > 0.0:
-                assert(in_channels == out_channels)
+                assert in_channels == out_channels
 
             # Data Pools?
 
@@ -296,10 +297,12 @@ class CycleGAN(pl.LightningModule):
 
     def training_step(self, batch, batch_nb, optimizer_i):
         if optimizer_i == 0:
+            # Train generator
             self.forward(batch)
             loss = self.backward_g()
             dict = {'g_loss': loss}
         elif optimizer_i == 1:
+            # Train discriminator
             loss = self.backward_d()
             dict = {'d_loss': loss}
 

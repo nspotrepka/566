@@ -19,7 +19,7 @@ def main():
 
     in_channels = data.in_channels
     out_channels = data.out_channels
-    model = setup.parallel(CycleGAN(loader, in_channels, out_channels, 32, 64))
+    model = setup.parallel(CycleGAN(loader, in_channels, out_channels, 64, 64))
     model = model.to(device)
 
     trainer = Trainer()
