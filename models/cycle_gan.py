@@ -105,7 +105,8 @@ class CycleGAN(pl.LightningModule):
                  loader, in_channels, out_channels, g_filters=64, d_filters=64,
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
-                 lambda_a=10.0, lambda_b=10.0, lambda_id=0.0, training=True):
+                 pool_size=0, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
+                 training=True):
         super(CycleGAN, self).__init__()
 
         self.loader = loader
@@ -132,7 +133,9 @@ class CycleGAN(pl.LightningModule):
             if lambda_id > 0.0:
                 assert in_channels == out_channels
 
-            # Data Pools?
+            # Data Pools
+            self.fake_a_pool = Pool(pool_size)
+            self.fake_b_pool = Pool(pool_size)
 
             # A -> real/fake
             self.dis_a = Discriminator(in_channels, d_filters, init_type,
@@ -189,8 +192,8 @@ class CycleGAN(pl.LightningModule):
         return loss_real + loss_fake
 
     def backward_d(self):
-        fake_a = self.fake_a #self.fake_a_pool.query(self.fake_a)
-        fake_b = self.fake_b #self.fake_b_pool.query(self.fake_b)
+        fake_a = self.fake_a_pool.query(self.fake_a)
+        fake_b = self.fake_b_pool.query(self.fake_b)
         self.loss_d_a = self.backward_d_func(self.dis_a, self.real_a, fake_a)
         self.loss_d_b = self.backward_d_func(self.dis_b, self.real_b, fake_b)
         self.loss_d = self.loss_d_a + self.loss_d_b
