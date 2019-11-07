@@ -106,7 +106,7 @@ class CycleGAN(pl.LightningModule):
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  pool_size=0, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
-                 training=True):
+                 n_flat=100, n_decay=100, training=True):
         super(CycleGAN, self).__init__()
 
         self.loader = loader
@@ -116,6 +116,8 @@ class CycleGAN(pl.LightningModule):
         self.lambda_a = lambda_a
         self.lambda_b = lambda_b
         self.lambda_id = lambda_id
+        self.n_flat = n_flat
+        self.n_decay = n_decay
         self.training = training
 
         # A -> B
@@ -220,8 +222,14 @@ class CycleGAN(pl.LightningModule):
             betas=(self.beta_1, self.beta_2))
         self.optimizers = [self.optimizer_g, self.optimizer_d]
 
+        def lr_lambda(epoch):
+            return 1.0 - max(0, epoch - self.n_flat) / float(self.n_decay + 1)
+
         # Schedulers
-        self.schedulers = []
+        self.schedulers = [
+            optim.lr_scheduler.LambdaLR(self.optimizer_g, lr_lambda=lr_lambda),
+            optim.lr_scheduler.LambdaLR(self.optimizer_d, lr_lambda=lr_lambda)
+        ]
 
         return self.optimizers, self.schedulers
 
