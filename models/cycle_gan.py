@@ -101,15 +101,17 @@ class GANLoss(nn.Module):
         return self.loss_func(prediction, target)
 
 class CycleGAN(pl.LightningModule):
-    def __init__(self,
-                 loader, in_channels, out_channels, g_filters=64, d_filters=64,
+    def __init__(self, train_loader, val_loader, test_loader,
+                 in_channels, out_channels, g_filters=64, d_filters=64,
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  pool_size=0, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
                  n_flat=100, n_decay=100, training=True):
         super(CycleGAN, self).__init__()
 
-        self.loader = loader
+        self.train_loader = train_loader
+        self.val_loader = val_loader
+        self.test_loader = test_loader
         self.learning_rate = learning_rate
         self.beta_1 = beta_1
         self.beta_2 = beta_2
@@ -204,7 +206,15 @@ class CycleGAN(pl.LightningModule):
 
     @pl.data_loader
     def train_dataloader(self):
-        return self.loader
+        return self.train_loader
+
+    @pl.data_loader
+    def val_dataloader(self):
+        return self.val_loader
+
+    @pl.data_loader
+    def test_dataloader(self):
+        return self.test_loader
 
     def configure_optimizers(self):
         # Optimizers

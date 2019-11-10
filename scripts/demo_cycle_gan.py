@@ -1,6 +1,4 @@
 import common.setup as setup
-# from data.gaped import GAPED
-# from data.pmemo import PMEmo
 from data.composite import Composite
 from models.cycle_gan import CycleGAN
 from pytorch_lightning import Trainer
@@ -13,13 +11,28 @@ def main():
 
     device = setup.device()
 
-    # size can be either 128 or 256
-    data = Composite(128, image_channels=3, audio_channels=2, type='train')
-    loader = setup.load(data, batch_size=1)
+    # Set up datasets
+    # Size can be either 128 or 256
+    size = 128
+    image_channels = 3
+    audio_channels = 2
+    batch_size = 1
+    train = Composite(size, image_channels, audio_channels, type='train')
+    val = Composite(size, image_channels, audio_channels, type='validation')
+    test = Composite(size, image_channels, audio_channels, type='test')
 
-    in_channels = data.in_channels
-    out_channels = data.out_channels
-    model = setup.parallel(CycleGAN(loader, in_channels, out_channels, 64, 64))
+    # Set up loaders
+    train_loader = setup.load(train, batch_size)
+    val_loader = setup.load(val, batch_size)
+    test_loader = setup.load(test, batch_size)
+
+    # Set up models
+    in_channels = train.in_channels
+    out_channels = train.out_channels
+    g_filters = 64
+    d_filters = 64
+    model = setup.parallel(CycleGAN(train_loader, val_loader, test_loader,
+        in_channels, out_channels, g_filters, d_filters))
     model = model.to(device)
 
     trainer = Trainer()

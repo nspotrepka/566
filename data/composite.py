@@ -30,7 +30,7 @@ class Composite(Dataset):
                 for i in range(num_train, num_train + num_test)])
         elif type == 'test':
             self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
-                for i in range(num_train + num_test, num_train + 2 * num_test)])
+                for i in range(num_train + num_test, num_train + num_test * 2)])
 
         # Number of in/out channels for neural network
         self.in_channels = self.gaped.channels
