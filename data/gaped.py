@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 import re
 from skimage import io, transform, util
 
-directory = 'data/GAPED/'
+directory = 'data/GAPED/GAPED/'
 categories = ['A', 'H', 'N', 'P', 'Sn', 'Sp']
 file_suffix = '_with SD.txt'
 

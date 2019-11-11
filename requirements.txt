@@ -1,0 +1,7 @@
+numpy
+torch
+torchaudio
+pytorch-lightning
+scikit-image
+gdown
+tqdm

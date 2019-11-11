@@ -5,14 +5,13 @@ art through deep learning.
 
 ## Setup
 
-See `data/README.md` for instructions on how to download the datasets.
+Before training, you need to install dependencies and download the data:
+```
+pip install -r requirements.txt
+python setup.py
+```
 
 ## Demo
-
-To confirm that FMA is properly installed, run the following demo:
-```
-python scripts/demo_fma.py
-```
 
 To confirm that GAPED is properly installed, run the following demo:
 ```
@@ -33,8 +32,7 @@ python scripts/demo_pmemo.py
     ```
 2. Install the required dependencies:
     ```
-    pip install numpy torch torchaudio pytorch-lightning scikit-image
-    pip install --upgrade torch
+    pip install -r requirements.txt
     ```
 3. Write some code!
 4. Pull any changes that may have been pushed while you were coding.
