@@ -1,6 +1,7 @@
 import common.setup as setup
 from data.composite import Composite
 from models.cycle_gan import CycleGAN
+import os
 from pytorch_lightning import Trainer
 import time
 
@@ -8,6 +9,9 @@ def main():
     print('PyTorch', setup.torch_version())
     print('CUDA is available:', setup.cuda_is_available())
     print('CUDA device count:', setup.cuda_device_count())
+
+    # This is an unsafe, unsupported, undocumented workaround
+    os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
     device = setup.device()
 
