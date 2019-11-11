@@ -20,7 +20,7 @@ Arousal and valence values are between 0 and 1.
 
 ### Setup
 
-Download the [PMEmo](https://drive.google.com/drive/folders/1qDk6hZDGVlVXgckjLq9LvXLZ9EgK9gw0)
+Download the [PMEmo](https://drive.google.com/file/d/1UzC3NCDj30j9Ba7i5lkMzWO5gFqSr0OJ/view)
 dataset and copy the `PMEmo2019` folder into this directory.
 
 ### Description
