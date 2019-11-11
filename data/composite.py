@@ -45,4 +45,4 @@ class Composite(Dataset):
         return [image[0], image_emotion[0]], [audio[0], audio_emotion[0]]
 
     def __len__(self):
-        return min(self.gaped.__len__(), self.pmemo.__len__())
+        return max(self.gaped.__len__(), self.pmemo.__len__())

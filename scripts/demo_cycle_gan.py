@@ -13,7 +13,7 @@ def main():
 
     # Set up datasets
     # Size can be either 128 or 256
-    size = 128
+    size = 256
     image_channels = 3
     audio_channels = 2
     batch_size = 1
