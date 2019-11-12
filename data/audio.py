@@ -46,7 +46,7 @@ def static():
     std = static_std()
     return np.hstack([mean, std])
 
-class AudioTransform(object):
+class AudioTransform:
     def __init__(self, size, audio_channels):
         self.size = size
         # This is not an intuitive FFT size, but we get good dimensions from it
@@ -83,29 +83,46 @@ class AudioTransform(object):
             audio = audio / self.fft_size
         return audio
 
-class PMEmo(Dataset):
+class Audio:
     rate = 32768
     full_length = 30
 
+    def __init__(self, size=256, audio_channels=2):
+        self.length = Audio.length(size)
+        self.transform = AudioTransform(size, audio_channels)
+
+    # Get length in seconds
     def length(size):
         return int(4 * (size / 256) ** 2)
 
+class AudioReader(Audio):
+    def __init__(self, size=256, audio_channels=2, offset=0):
+        super(AudioReader, self).__init__(size, audio_channels)
+        assert offset >= 0 and offset < Audio.full_length // self.length
+        cue = offset * self.length
+        self.chain = torchaudio.sox_effects.SoxEffectsChain()
+        self.chain.append_effect_to_chain('rate', [str(Audio.rate)])
+        self.chain.append_effect_to_chain('channels', [str(audio_channels)])
+        self.chain.append_effect_to_chain('pad', ['0', str(Audio.full_length)])
+        self.chain.append_effect_to_chain('trim', [str(cue), str(self.length)])
+        self.dim = [audio_channels, self.length * Audio.rate]
+
+    def __call__(self, path):
+        self.chain.set_input_file(path)
+        try:
+            audio, _ = self.chain.sox_build_flow_effects()
+        except RuntimeError:
+            audio = torch.zeros(self.dim)
+        audio = self.transform(audio)
+        audio = audio.float()
+        return audio
+
+class PMEmo(Dataset):
     def __init__(self, size=256, audio_channels=2, offset=0, cache=False):
-        self.length = PMEmo.length(size)
-        assert offset >= 0 and offset < PMEmo.full_length // self.length
-        self.size = size
-        self.channels = 2 * audio_channels
-        self.audio_channels = audio_channels
         self.paths = paths()
         self.index = index()
         self.static = static()
-        self.chain = torchaudio.sox_effects.SoxEffectsChain()
-        self.chain.append_effect_to_chain('rate', [str(PMEmo.rate)])
-        self.chain.append_effect_to_chain('channels', [str(audio_channels)])
-        self.chain.append_effect_to_chain('pad', ['0', str(PMEmo.full_length)])
-        self.chain.append_effect_to_chain('trim',
-            [str(1 + self.length * offset), str(self.length)])
-        self.transform = AudioTransform(size, audio_channels)
+        self.reader = AudioReader(size, audio_channels, offset)
         self.audio = {}
         self.cache = cache
 
@@ -114,17 +131,12 @@ class PMEmo(Dataset):
         if key in self.audio:
             audio = self.audio[key]
         else:
-            self.chain.set_input_file(self.paths[key])
-            try:
-                audio, _ = self.chain.sox_build_flow_effects()
-            except RuntimeError:
-                audio = torch.zeros(
-                    [self.audio_channels, self.length * PMEmo.rate])
-            audio = self.transform(audio)
+            audio = self.reader(self.paths[key])
             if self.cache:
                 self.audio[key] = audio
-        emotion = torch.from_numpy(self.static[i])
-        return audio.float(), emotion.float()
+        emotion = self.static[i]
+        emotion = torch.from_numpy(emotion).float()
+        return audio, emotion
 
     def __len__(self):
         return len(self.index)

@@ -1,4 +1,5 @@
 from data.image import GAPED
+from data.audio import Audio
 from data.audio import PMEmo
 import torch
 from torch.utils.data import ConcatDataset
@@ -10,7 +11,7 @@ class Composite(Dataset):
                  cache=False, shuffle=True):
         # Check for valid size
         assert size == 128 or size == 256 or size == 512
-        chunks = PMEmo.full_length // PMEmo.length(size)
+        chunks = Audio.full_length // Audio.length(size)
 
         # Choose which subset of music to use
         self.gaped = GAPED(size, image_channels, cache=cache)
@@ -18,8 +19,8 @@ class Composite(Dataset):
             for i in range(chunks)])
 
         # Number of in/out channels for neural network
-        self.in_channels = self.gaped.channels
-        self.out_channels = self.pmemo.datasets[0].channels
+        self.in_channels = image_channels
+        self.out_channels = audio_channels * 2
 
         # Set up loaders and iterators
         self.gaped_loader = DataLoader(self.gaped, shuffle=shuffle)

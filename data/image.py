@@ -50,7 +50,7 @@ def emotion():
         data.append(row)
     return np.array(data)
 
-class ImageTransform(object):
+class ImageTransform:
     def __init__(self, width, height, channels):
         self.width = width
         self.height = height
@@ -81,13 +81,26 @@ class ImageTransform(object):
             image = image * 2 - 1
         return image
 
+class Image:
+    def __init__(self, size=256, image_channels=3):
+        self.transform = ImageTransform(size, size * 3 // 4, image_channels)
+
+class ImageReader(Image):
+    def __init__(self, size=256, image_channels=3):
+        super(ImageReader, self).__init__(size, image_channels)
+
+    def __call__(self, path):
+        image = io.imread(path)
+        image = self.transform(image)
+        image = torch.from_numpy(image).float()
+        return image
+
 class GAPED(Dataset):
     def __init__(self, size=256, image_channels=3, cache=False):
-        self.channels = image_channels
         self.paths = paths()
         self.names = names()
         self.emotion = emotion()
-        self.transform = ImageTransform(size, size * 3 // 4, image_channels)
+        self.reader = ImageReader(size, image_channels)
         self.image = {}
         self.cache = cache
 
@@ -96,13 +109,12 @@ class GAPED(Dataset):
         if key in self.image:
             image = self.image[key]
         else:
-            image = io.imread(self.paths[self.names[i]])
-            image = self.transform(image)
-            image = torch.from_numpy(image)
+            image = self.reader(self.paths[self.names[i]])
             if self.cache:
                 self.image[key] = image
-        emotion = torch.from_numpy(self.emotion[i])
-        return image.float(), emotion.float()
+        emotion = self.emotion[i]
+        emotion = torch.from_numpy(emotion).float()
+        return image, emotion
 
     def __len__(self):
         return len(self.names)
