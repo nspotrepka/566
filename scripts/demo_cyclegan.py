@@ -7,7 +7,7 @@ from pytorch_lightning.callbacks.pt_callbacks import ModelCheckpoint
 
 def main():
     # This is an unsafe, unsupported, undocumented workaround
-    os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+    setup.allow_kmp_duplicate_lib()
 
     # Size can be 128, 256, or 512
     size = 128

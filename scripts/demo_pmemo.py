@@ -1,11 +1,10 @@
 import common.setup as setup
-from data.audio import PMEmo
-import os
+from data.pmemo import PMEmo
 import time
 
 def main():
     # This is an unsafe, unsupported, undocumented workaround
-    os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+    setup.allow_kmp_duplicate_lib()
 
     device = setup.device()
 

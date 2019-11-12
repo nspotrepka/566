@@ -1,5 +1,5 @@
 import common.setup as setup
-from data.image import GAPED
+from data.gaped import GAPED
 import time
 
 def main():

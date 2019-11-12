@@ -1,3 +1,4 @@
+import os
 import torch
 from torch.utils.data import DataLoader
 from torch.nn import DataParallel
@@ -23,6 +24,9 @@ def device():
 
 def load(dataset, batch_size, num_workers=0):
     return DataLoader(dataset, batch_size, True, num_workers=num_workers)
+
+def allow_kmp_duplicate_lib():
+    os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 def init_audio():
     torchaudio.initialize_sox()

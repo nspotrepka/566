@@ -1,50 +1,5 @@
-import csv
-import numpy as np
-import os
 import torch
-from torch.utils.data import Dataset
 import torchaudio
-
-directory = 'data/PMEmo2019/'
-
-def paths():
-    walk = os.walk(directory + 'chorus/')
-    paths = {}
-    for dir in walk:
-        for file in dir[2]:
-            if file.endswith('.mp3'):
-                i = int(file[:file.index('.mp3')])
-                path = dir[0] + file
-                paths[i] = path
-    return paths
-
-def annotation(path):
-    with open(path, newline='') as csvfile:
-        annotations = csv.reader(csvfile, delimiter=',')
-        data = []
-        for row in annotations:
-            point = []
-            for x in row:
-                point.append(x)
-            data.append(point)
-        return np.array(data[1:], dtype=np.float64)
-
-def index():
-    array = annotation(directory + 'annotations/static_annotations.csv')
-    return array[:,0]
-
-def static_mean():
-    array = annotation(directory + 'annotations/static_annotations.csv')
-    return array[:,1:]
-
-def static_std():
-    array = annotation(directory + 'annotations/static_annotations_std.csv')
-    return array[:,1:]
-
-def static():
-    mean = static_mean()
-    std = static_std()
-    return np.hstack([mean, std])
 
 class AudioTransform:
     def __init__(self, size, audio_channels):
@@ -116,27 +71,3 @@ class AudioReader(Audio):
         audio = self.transform(audio)
         audio = audio.float()
         return audio
-
-class PMEmo(Dataset):
-    def __init__(self, size=256, audio_channels=2, offset=0, cache=False):
-        self.paths = paths()
-        self.index = index()
-        self.static = static()
-        self.reader = AudioReader(size, audio_channels, offset)
-        self.audio = {}
-        self.cache = cache
-
-    def __getitem__(self, i):
-        key = self.index[i]
-        if key in self.audio:
-            audio = self.audio[key]
-        else:
-            audio = self.reader(self.paths[key])
-            if self.cache:
-                self.audio[key] = audio
-        emotion = self.static[i]
-        emotion = torch.from_numpy(emotion).float()
-        return audio, emotion
-
-    def __len__(self):
-        return len(self.index)
