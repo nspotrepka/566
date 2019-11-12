@@ -3,6 +3,7 @@ from data.composite import Composite
 from models.cyclegan.model import CycleGAN
 import os
 from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks.pt_callbacks import ModelCheckpoint
 
 def main():
     # This is an unsafe, unsupported, undocumented workaround
@@ -27,14 +28,26 @@ def main():
 
     # Set up trainer
     epochs = 200
+    checkpoint = ModelCheckpoint(
+        filepath=os.getcwd(),
+        verbose=True,
+        save_best_only=False,
+        save_weights_only=False,
+        period=1
+    )
     if setup.cuda_is_available():
         gpus = range(setup.cuda_device_count())
         trainer = Trainer(
             distributed_backend='dp',
             gpus=gpus,
-            max_nb_epochs=epochs)
+            checkpoint_callback=checkpoint,
+            max_nb_epochs=epochs
+        )
     else:
-        trainer = Trainer(max_nb_epochs=epochs)
+        trainer = Trainer(
+            checkpoint_callback=checkpoint,
+            max_nb_epochs=epochs
+        )
 
     # Train
     setup.init_audio()

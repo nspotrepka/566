@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from common.loss import GANLoss
 from common.pool import Pool
 import itertools
@@ -7,13 +8,15 @@ import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 import pytorch_lightning as pl
 import torch
+import torch.autograd as autograd
 import torch.nn as nn
 import torch.optim as optim
 
 # Test normal init vs. xavier normal init
 # Test no dropout vs. dropout
 # Test generator 64 vs. 32
-# Test input size 128 vs 256 (vs 512?)
+# Test input size 128 vs 256 vs 512
+# Figure out how many epochs to train (128, 256, 512)
 
 class CycleGAN(pl.LightningModule):
     def __init__(self,
@@ -23,6 +26,8 @@ class CycleGAN(pl.LightningModule):
                  pool_size=0, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
                  n_flat=100, n_decay=100, training=True):
         super(CycleGAN, self).__init__()
+
+        autograd.set_detect_anomaly(True)
 
         self.loader = loader
         self.learning_rate = learning_rate
@@ -153,18 +158,19 @@ class CycleGAN(pl.LightningModule):
         return self.optimizers, self.schedulers
 
     def training_step(self, batch, batch_nb, optimizer_i):
-        if optimizer_i == 0:
-            # Train generator
-            self.forward(batch)
-            loss = self.backward_g()
-            dict = {'g_loss': loss}
-        elif optimizer_i == 1:
-            # Train discriminator
-            loss = self.backward_d()
-            dict = {'d_loss': loss}
+        with autograd.detect_anomaly():
+            if optimizer_i == 0:
+                # Train generator
+                self.forward(batch)
+                loss = self.backward_g()
+                dict = {'loss_gen': loss}
+            elif optimizer_i == 1:
+                # Train discriminator
+                loss = self.backward_d()
+                dict = {'loss_dis': loss}
 
-        return {
-            'loss': loss,
-            'progress_bar': dict,
-            'log': dict
-        }
+            return OrderedDict({
+                'loss': loss,
+                'progress_bar': dict,
+                'log': dict
+            })
