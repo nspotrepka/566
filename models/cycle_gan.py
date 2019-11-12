@@ -123,6 +123,8 @@ class CycleGAN(pl.LightningModule):
         self.training = training
         self.g_loss = 0
         self.d_loss = 0
+        self.g_val_loss = 0
+        self.d_val_loss = 0
 
         # A -> B
         self.gen_a_to_b = Generator(in_channels, out_channels, g_filters,
@@ -261,3 +263,24 @@ class CycleGAN(pl.LightningModule):
             'progress_bar': dict,
             'log': dict
         }
+
+    def validation_step(self, batch, batch_nb, optimizer_i):
+        if optimizer_i == 0:
+            # Validate generator
+            self.forward(batch)
+            self.g_val_loss = self.backward_g()
+            dict = {'g_val_loss': self.g_loss}
+        elif optimizer_i == 1:
+            # Validate discriminator
+            self.d_val_loss += self.backward_d()
+            dict = {'d_val_loss': self.d_loss}
+
+        return {
+            'val_loss': self.g_val_loss + self.d_val_loss,
+            'log': dict
+        }
+
+    def validation_end(self, outputs):
+        avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
+        dict = {'val_loss': avg_loss}
+        return {'avg_val_loss': avg_loss, 'log': dict}
