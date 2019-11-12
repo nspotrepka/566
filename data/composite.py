@@ -10,14 +10,14 @@ class Composite(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
                  cache=False, type='train', shuffle=True):
         # Check for valid size
-        # Should be either 128 or 256
-        chunks = PMEmo.full_length // PMEmo.length(size)
-        assert chunks >= 3
+        # Should be 128, 256, or 512 (no validation or test for 512)
+        assert size == 128 or size == 256 or size == 512
 
         # Just use all images
         self.gaped = GAPED(size, image_channels, cache=cache)
 
         # 70/30 split
+        chunks = PMEmo.full_length // PMEmo.length(size)
         num_test = int(chunks * 0.3 / 2)
         num_train = chunks - 2 * num_test
 
@@ -42,23 +42,23 @@ class Composite(Dataset):
         self.gaped_iter = iter(self.gaped_loader)
         self.pmemo_iter = iter(self.pmemo_loader)
 
+    def __next__(self, iterator, loader):
+        try:
+            data, emotion = iterator.next()
+        except StopIteration:
+            iterator = iter(loader)
+            data, emotion = iterator.next()
+        data = torch.squeeze(data, 0)
+        emotion = torch.squeeze(emotion, 0)
+        return (iterator, data, emotion)
+
     def __getitem__(self, i):
-        try:
-            image, image_emotion = self.gaped_iter.next()
-        except StopIteration:
-            self.gaped_iter = iter(self.gaped_loader)
-            image, image_emotion = self.gaped_iter.next()
+        gaped_tuple = self.__next__(self.gaped_iter, self.gaped_loader)
+        pmemo_tuple = self.__next__(self.pmemo_iter, self.pmemo_loader)
 
-        try:
-            audio, audio_emotion = self.pmemo_iter.next()
-        except StopIteration:
-            self.pmemo_iter = iter(self.pmemo_loader)
-            audio, audio_emotion = self.pmemo_iter.next()
+        self.gaped_iter, image, image_emotion = gaped_tuple
+        self.pmemo_iter, audio, audio_emotion = pmemo_tuple
 
-        image = torch.squeeze(image, 0)
-        image_emotion = torch.squeeze(image_emotion, 0)
-        audio = torch.squeeze(audio, 0)
-        audio_emotion = torch.squeeze(audio_emotion, 0)
         return [image, image_emotion], [audio, audio_emotion]
 
     def __len__(self):
