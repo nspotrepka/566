@@ -34,6 +34,8 @@ class Composite(Dataset):
         except StopIteration:
             iterator = iter(loader)
             data, emotion = iterator.next()
+        while data.min() == 0 and data.max() == 0:
+            data, emotion = iterator.next()
         data = torch.squeeze(data, 0)
         emotion = torch.squeeze(emotion, 0)
         return (iterator, data, emotion)
@@ -44,9 +46,6 @@ class Composite(Dataset):
 
         self.gaped_iter, image, image_emotion = gaped_tuple
         self.pmemo_iter, audio, audio_emotion = pmemo_tuple
-
-        print("image_min:", image.min(), "image_max:", image.max())
-        print("audio_min:", audio.min(), "audio_max:", audio.max())
 
         return [image, image_emotion], [audio, audio_emotion]
 

@@ -24,10 +24,10 @@ class CycleGAN(pl.LightningModule):
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  pool_size=0, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
-                 n_flat=100, n_decay=100, training=True):
+                 n_flat=100, n_decay=100, training=True, detect_anomaly=False):
         super(CycleGAN, self).__init__()
 
-        autograd.set_detect_anomaly(True)
+        autograd.set_detect_anomaly(detect_anomaly)
 
         self.loader = loader
         self.learning_rate = learning_rate

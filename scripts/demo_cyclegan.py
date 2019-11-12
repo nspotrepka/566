@@ -24,7 +24,8 @@ def main():
     out_channels = dataset.out_channels
     g_filters = 64
     d_filters = 64
-    model = CycleGAN(loader, in_channels, out_channels, g_filters, d_filters)
+    model = CycleGAN(loader, in_channels, out_channels, g_filters, d_filters,
+        detect_anomaly=True)
 
     # Set up trainer
     epochs = 200
