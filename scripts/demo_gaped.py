@@ -3,17 +3,13 @@ from data.gaped import GAPED
 import time
 
 def main():
-    print('PyTorch', setup.torch_version())
-    print('CUDA is available:', setup.cuda_is_available())
-    print('CUDA device count:', setup.cuda_device_count())
-
     device = setup.device()
 
     batch_size = 8
-    dataset = GAPED()
+    dataset = GAPED(size=128, cache=True)
     loader = setup.load(dataset, batch_size)
 
-    for _ in range(2):
+    for epoch in range(2):
         start_time = time.time()
 
         count = 0
@@ -21,8 +17,9 @@ def main():
             image, emotion = batch
             image.to(device)
             emotion.to(device)
-            print(image.shape)
-            print(emotion.shape)
+            if epoch == 0 and count == 0:
+                print(image.shape)
+                print(emotion.shape)
             count = min(count + batch_size, dataset.__len__())
             print('Loaded', count, '/', dataset.__len__())
 

@@ -5,10 +5,6 @@ import os
 from pytorch_lightning import Trainer
 
 def main():
-    print('PyTorch', setup.torch_version())
-    print('CUDA is available:', setup.cuda_is_available())
-    print('CUDA device count:', setup.cuda_device_count())
-
     # This is an unsafe, unsupported, undocumented workaround
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
