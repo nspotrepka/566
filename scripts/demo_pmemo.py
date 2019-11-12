@@ -7,6 +7,9 @@ def main():
     print('CUDA is available:', setup.cuda_is_available())
     print('CUDA device count:', setup.cuda_device_count())
 
+    # This is an unsafe, unsupported, undocumented workaround
+    os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+
     device = setup.device()
 
     batch_size = 8

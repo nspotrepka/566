@@ -3,7 +3,10 @@ from data.composite import Composite
 import torch
 
 def main():
-    size = 256
+    # This is an unsafe, unsupported, undocumented workaround
+    os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+
+    size = 512
     image_channels = 3
     audio_channels = 2
     batch_size = 1
