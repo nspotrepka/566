@@ -1,4 +1,4 @@
-from data.gaped import GAPED
+from data.image import GAPED
 from data.pmemo import PMEmo
 from data.pmemo import AudioTransform
 import torch
