@@ -8,7 +8,7 @@ art through deep learning.
 Before training, you need to install dependencies and download the data:
 ```
 pip install -r requirements.txt
-python setup.py
+python download.py
 ```
 
 ## Demo
