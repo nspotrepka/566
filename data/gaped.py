@@ -59,7 +59,10 @@ class ImageTransform(object):
 
     def __call__(self, image, reverse=False):
         if reverse:
+            # Unscale
+            image = (image + 1) / 2
             # Crop height
+            # Skip to observe artifacts
             # image = image[:, self.padding:self.padding + self.height, :]
             # Transpose dimensions
             image = image.T
@@ -74,6 +77,8 @@ class ImageTransform(object):
                 mode='reflect')
             # Crop channels
             image = image[:self.channels, :, :]
+            # Scale
+            image = image * 2 - 1
         return image
 
 class GAPED(Dataset):

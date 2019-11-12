@@ -45,6 +45,9 @@ class Composite(Dataset):
         self.gaped_iter, image, image_emotion = gaped_tuple
         self.pmemo_iter, audio, audio_emotion = pmemo_tuple
 
+        print("image_min:", image.min(), "image_max:", image.max())
+        print("audio_min:", audio.min(), "audio_max:", audio.max())
+
         return [image, image_emotion], [audio, audio_emotion]
 
     def __len__(self):

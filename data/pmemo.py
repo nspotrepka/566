@@ -55,6 +55,8 @@ class AudioTransform(object):
 
     def __call__(self, audio, reverse=False):
         if reverse:
+            # Unscale
+            audio = audio * self.fft_size
             # Separate audio channels with real/imag
             audio = audio.contiguous().view(
                 self.audio_channels, 2, self.size, self.size)
@@ -77,6 +79,8 @@ class AudioTransform(object):
             # Combine audio channels with real/imag
             audio = audio.contiguous().view(
                 self.audio_channels * 2, self.size, self.size)
+            # Scale
+            audio = audio / self.fft_size
         return audio
 
 class PMEmo(Dataset):
