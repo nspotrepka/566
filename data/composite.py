@@ -1,6 +1,5 @@
 from data.image import GAPED
-from data.pmemo import PMEmo
-from data.pmemo import AudioTransform
+from data.audio import PMEmo
 import torch
 from torch.utils.data import ConcatDataset
 from torch.utils.data import Dataset
