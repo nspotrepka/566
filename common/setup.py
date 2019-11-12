@@ -24,9 +24,6 @@ def device():
 def load(dataset, batch_size, num_workers=0):
     return DataLoader(dataset, batch_size, True, num_workers=num_workers)
 
-def parallel(model):
-    return DataParallel(model) if cuda_device_count() > 1 else model
-
 def init_audio():
     torchaudio.initialize_sox()
 

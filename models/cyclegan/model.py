@@ -16,17 +16,15 @@ import torch.optim as optim
 # Test input size 128 vs 256 (vs 512?)
 
 class CycleGAN(pl.LightningModule):
-    def __init__(self, train_loader, val_loader, test_loader,
-                 in_channels, out_channels, g_filters=64, d_filters=64,
+    def __init__(self,
+                 loader, in_channels, out_channels, g_filters=64, d_filters=64,
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  pool_size=0, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
                  n_flat=100, n_decay=100, training=True):
         super(CycleGAN, self).__init__()
 
-        self.train_loader = train_loader
-        self.val_loader = val_loader
-        self.test_loader = test_loader
+        self.loader = loader
         self.learning_rate = learning_rate
         self.beta_1 = beta_1
         self.beta_2 = beta_2
@@ -125,15 +123,7 @@ class CycleGAN(pl.LightningModule):
 
     @pl.data_loader
     def train_dataloader(self):
-        return self.train_loader
-
-    @pl.data_loader
-    def val_dataloader(self):
-        return self.val_loader
-
-    @pl.data_loader
-    def test_dataloader(self):
-        return self.test_loader
+        return self.loader
 
     def configure_optimizers(self):
         # Optimizers
@@ -166,37 +156,15 @@ class CycleGAN(pl.LightningModule):
         if optimizer_i == 0:
             # Train generator
             self.forward(batch)
-            self.g_loss = self.backward_g()
-            dict = {'g_loss': self.g_loss}
+            loss = self.backward_g()
+            dict = {'g_loss': loss}
         elif optimizer_i == 1:
             # Train discriminator
-            self.d_loss = self.backward_d()
-            dict = {'d_loss': self.d_loss}
+            loss = self.backward_d()
+            dict = {'d_loss': loss}
 
         return {
-            'loss': self.g_loss + self.d_loss,
+            'loss': loss,
             'progress_bar': dict,
             'log': dict
         }
-
-    def validation_step(self, batch, batch_nb, optimizer_i):
-        if optimizer_i == 0:
-            # Validate generator
-            self.forward(batch)
-            self.g_val_loss = self.backward_g()
-            dict = {'g_val_loss': self.g_loss}
-        elif optimizer_i == 1:
-            # Validate discriminator
-            self.d_val_loss += self.backward_d()
-            dict = {'d_val_loss': self.d_loss}
-
-        return {
-            'val_loss': self.g_val_loss + self.d_val_loss,
-            'progress_bar': dict,
-            'log': dict
-        }
-
-    def validation_end(self, outputs):
-        avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
-        dict = {'val_loss': avg_loss}
-        return {'avg_val_loss': avg_loss, 'log': dict}

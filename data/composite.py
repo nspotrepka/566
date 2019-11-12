@@ -8,37 +8,23 @@ from torch.utils.data import DataLoader
 
 class Composite(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
-                 cache=False, type='train', shuffle=True):
+                 cache=False, shuffle=True):
         # Check for valid size
-        # Should be 128, 256, or 512 (no validation or test for 512)
         assert size == 128 or size == 256 or size == 512
-
-        # Just use all images
-        self.gaped = GAPED(size, image_channels, cache=cache)
-
-        # 70/30 split
         chunks = PMEmo.full_length // PMEmo.length(size)
-        num_test = int(chunks * 0.3 / 2)
-        num_train = chunks - 2 * num_test
 
         # Choose which subset of music to use
-        if type == 'train':
-            self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
-                for i in range(num_train)])
-        elif type == 'validation':
-            self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
-                for i in range(num_train, num_train + num_test)])
-        elif type == 'test':
-            self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
-                for i in range(num_train + num_test, num_train + num_test * 2)])
+        self.gaped = GAPED(size, image_channels, cache=cache)
+        self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
+            for i in range(chunks)])
 
         # Number of in/out channels for neural network
         self.in_channels = self.gaped.channels
         self.out_channels = self.pmemo.datasets[0].channels
 
+        # Set up loaders and iterators
         self.gaped_loader = DataLoader(self.gaped, shuffle=shuffle)
         self.pmemo_loader = DataLoader(self.pmemo, shuffle=shuffle)
-
         self.gaped_iter = iter(self.gaped_loader)
         self.pmemo_iter = iter(self.pmemo_loader)
 

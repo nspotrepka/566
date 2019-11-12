@@ -12,34 +12,35 @@ def main():
     # This is an unsafe, unsupported, undocumented workaround
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-    device = setup.device()
-
-    # Set up datasets
-    # Size can be either 128 or 256
-    size = 256
+    # Size can be 128, 256, or 512
+    size = 128
     image_channels = 3
     audio_channels = 2
     batch_size = 1
-    train = Composite(size, image_channels, audio_channels, type='train')
-    val = Composite(size, image_channels, audio_channels, type='validation')
-    test = Composite(size, image_channels, audio_channels, type='test')
 
-    # Set up loaders
-    train_loader = setup.load(train, batch_size)
-    val_loader = setup.load(val, batch_size)
-    test_loader = setup.load(test, batch_size)
+    # Load data
+    dataset = Composite(size, image_channels, audio_channels, cache=True)
+    loader = setup.load(dataset, batch_size)
 
-    # Set up models
-    in_channels = train.in_channels
-    out_channels = train.out_channels
+    # Create model
+    in_channels = dataset.in_channels
+    out_channels = dataset.out_channels
     g_filters = 64
     d_filters = 64
-    model = setup.parallel(CycleGAN(train_loader, val_loader, test_loader,
-        in_channels, out_channels, g_filters, d_filters))
-    model = model.to(device)
+    model = CycleGAN(loader, in_channels, out_channels, g_filters, d_filters)
 
-    trainer = Trainer()
+    # Set up trainer
+    epochs = 200
+    if setup.cuda_is_available():
+        gpus = range(setup.cuda_device_count())
+        trainer = Trainer(
+            distributed_backend='dp',
+            gpus=gpus,
+            max_nb_epochs=epochs)
+    else:
+        trainer = Trainer(max_nb_epochs=epochs)
 
+    # Train
     setup.init_audio()
     trainer.fit(model)
     setup.shutdown_audio()
