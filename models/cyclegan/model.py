@@ -24,10 +24,8 @@ class CycleGAN(pl.LightningModule):
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  pool_size=0, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
-                 n_flat=100, n_decay=100, training=True, detect_anomaly=False):
+                 n_flat=100, n_decay=100, training=True):
         super(CycleGAN, self).__init__()
-
-        autograd.set_detect_anomaly(detect_anomaly)
 
         self.loader = loader
         self.learning_rate = learning_rate
@@ -158,19 +156,18 @@ class CycleGAN(pl.LightningModule):
         return self.optimizers, self.schedulers
 
     def training_step(self, batch, batch_nb, optimizer_i):
-        with autograd.detect_anomaly():
-            if optimizer_i == 0:
-                # Train generator
-                self.forward(batch)
-                loss = self.backward_g()
-                dict = {'loss_gen': loss}
-            elif optimizer_i == 1:
-                # Train discriminator
-                loss = self.backward_d()
-                dict = {'loss_dis': loss}
+        if optimizer_i == 0:
+            # Train generator
+            self.forward(batch)
+            loss = self.backward_g()
+            dict = {'loss_gen': loss}
+        elif optimizer_i == 1:
+            # Train discriminator
+            loss = self.backward_d()
+            dict = {'loss_dis': loss}
 
-            return OrderedDict({
-                'loss': loss,
-                'progress_bar': dict,
-                'log': dict
-            })
+        return OrderedDict({
+            'loss': loss,
+            'progress_bar': dict,
+            'log': dict
+        })
