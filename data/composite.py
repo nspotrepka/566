@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 
 class Composite(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
-                 cache=False, type='train'):
+                 cache=False, type='train', shuffle=True):
         # Check for valid size
         # Should be either 128 or 256
         chunks = PMEmo.full_length // PMEmo.length(size)
@@ -36,13 +36,30 @@ class Composite(Dataset):
         self.in_channels = self.gaped.channels
         self.out_channels = self.pmemo.datasets[0].channels
 
-        self.gaped_iter = iter(DataLoader(self.gaped, shuffle=True))
-        self.pmemo_iter = iter(DataLoader(self.pmemo, shuffle=True))
+        self.gaped_loader = DataLoader(self.gaped, shuffle=shuffle)
+        self.pmemo_loader = DataLoader(self.pmemo, shuffle=shuffle)
+
+        self.gaped_iter = iter(self.gaped_loader)
+        self.pmemo_iter = iter(self.pmemo_loader)
 
     def __getitem__(self, i):
-        image, image_emotion = next(self.gaped_iter)
-        audio, audio_emotion = next(self.pmemo_iter)
-        return [image[0], image_emotion[0]], [audio[0], audio_emotion[0]]
+        try:
+            image, image_emotion = self.gaped_iter.next()
+        except StopIteration:
+            self.gaped_iter = iter(self.gaped_loader)
+            image, image_emotion = self.gaped_iter.next()
+
+        try:
+            audio, audio_emotion = self.pmemo_iter.next()
+        except StopIteration:
+            self.pmemo_iter = iter(self.pmemo_loader)
+            audio, audio_emotion = self.pmemo_iter.next()
+
+        image = torch.squeeze(image, 0)
+        image_emotion = torch.squeeze(image_emotion, 0)
+        audio = torch.squeeze(audio, 0)
+        audio_emotion = torch.squeeze(audio_emotion, 0)
+        return [image, image_emotion], [audio, audio_emotion]
 
     def __len__(self):
         return max(self.gaped.__len__(), self.pmemo.__len__())

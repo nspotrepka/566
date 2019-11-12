@@ -3,7 +3,6 @@ from data.composite import Composite
 from models.cycle_gan import CycleGAN
 import os
 from pytorch_lightning import Trainer
-import time
 
 def main():
     print('PyTorch', setup.torch_version())

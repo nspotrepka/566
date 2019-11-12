@@ -121,6 +121,8 @@ class CycleGAN(pl.LightningModule):
         self.n_flat = n_flat
         self.n_decay = n_decay
         self.training = training
+        self.g_loss = 0
+        self.d_loss = 0
 
         # A -> B
         self.gen_a_to_b = Generator(in_channels, out_channels, g_filters,
@@ -247,15 +249,15 @@ class CycleGAN(pl.LightningModule):
         if optimizer_i == 0:
             # Train generator
             self.forward(batch)
-            loss = self.backward_g()
-            dict = {'g_loss': loss}
+            self.g_loss = self.backward_g()
+            dict = {'g_loss': self.g_loss}
         elif optimizer_i == 1:
             # Train discriminator
-            loss = self.backward_d()
-            dict = {'d_loss': loss}
+            self.d_loss = self.backward_d()
+            dict = {'d_loss': self.d_loss}
 
         return {
-            'loss': loss,
+            'loss': self.g_loss + self.d_loss,
             'progress_bar': dict,
             'log': dict
         }
