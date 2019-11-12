@@ -1,6 +1,6 @@
 import common.setup as setup
 from data.composite import Composite
-from models.cycle_gan import CycleGAN
+from models.cyclegan.model import CycleGAN
 import os
 from pytorch_lightning import Trainer
 

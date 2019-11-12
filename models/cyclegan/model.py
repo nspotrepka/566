@@ -1,10 +1,8 @@
-from common.layers import init_module
-from common.layers import ConvBlock
-from common.layers import ConvTransposeBlock
-from common.layers import LeakyConvBlock
-from common.layers import ResidualBlock
+from common.loss import GANLoss
 from common.pool import Pool
 import itertools
+from models.cyclegan.discriminator import Discriminator
+from models.cyclegan.generator import Generator
 import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 import pytorch_lightning as pl
@@ -16,89 +14,6 @@ import torch.optim as optim
 # Test no dropout vs. dropout
 # Test generator 64 vs. 32
 # Test input size 128 vs 256 (vs 512?)
-
-class Generator(nn.Module):
-    def __init__(self, in_channels, out_channels, filters=64, residual_layers=9,
-                 dropout=False, init_type='normal', init_scale=0.02):
-        super(Generator, self).__init__()
-
-        # Encoder
-        self.encoder = nn.Sequential(
-            ConvBlock(
-                in_channels, filters, kernel_size=7, stride=1, padding=3),
-            ConvBlock(
-                filters, filters * 2, kernel_size=3, stride=2, padding=1),
-            ConvBlock(
-                filters * 2, filters * 4, kernel_size=3, stride=2, padding=1))
-
-        # Transformer
-        self.transformer = nn.Sequential(
-            *[ResidualBlock(filters * 4, kernel_size=3, stride=1, padding=1,
-                dropout=dropout) for _ in range(residual_layers)])
-
-        # Decoder
-        self.decoder = nn.Sequential(
-            ConvTransposeBlock(
-                filters * 4, filters * 2, kernel_size=3, stride=2, padding=1),
-            ConvTransposeBlock(
-                filters * 2, filters, kernel_size=3, stride=2, padding=1),
-            ConvBlock(
-                filters, out_channels, kernel_size=7, stride=1, padding=3,
-                relu=False),
-            nn.Tanh())
-
-        # Generator
-        self.net = nn.Sequential(self.encoder, self.transformer, self.decoder)
-
-        # Initialize weights
-        for module in self.net.modules():
-            init_module(module, init_type, init_scale)
-
-    def forward(self, x):
-        return self.net(x)
-
-class Discriminator(nn.Module):
-    def __init__(self, in_channels, filters=64, init_type='normal',
-                 init_scale=0.02):
-        super(Discriminator, self).__init__()
-
-        # Discriminator
-        p = (1, 2, 1, 2)
-        self.net = nn.Sequential(
-            LeakyConvBlock(
-                in_channels, filters, kernel_size=4, stride=2, padding=p),
-            LeakyConvBlock(
-                filters, filters * 2, kernel_size=4, stride=2, padding=p),
-            LeakyConvBlock(
-                filters * 2, filters * 4, kernel_size=4, stride=2, padding=p),
-            LeakyConvBlock(
-                filters * 4, filters * 8, kernel_size=4, stride=1, padding=p),
-            LeakyConvBlock(
-                filters * 8, 1, kernel_size=4, stride=1, padding=p,
-                instance_norm=False, leaky_relu=False))
-
-        # Initialize weights
-        for module in self.net.modules():
-            init_module(module, init_type, init_scale)
-
-    def forward(self, x):
-        return self.net(x)
-
-class GANLoss(nn.Module):
-    def __init__(self, real_label=1.0, fake_label=0.0):
-        super(GANLoss, self).__init__()
-
-        self.register_buffer('real_label', torch.tensor(real_label))
-        self.register_buffer('fake_label', torch.tensor(fake_label))
-        self.loss_func = nn.MSELoss()
-
-    def __call__(self, prediction, is_real):
-        if is_real:
-            target = self.real_label
-        else:
-            target = self.fake_label
-        target = target.expand_as(prediction)
-        return self.loss_func(prediction, target)
 
 class CycleGAN(pl.LightningModule):
     def __init__(self, train_loader, val_loader, test_loader,
@@ -277,6 +192,7 @@ class CycleGAN(pl.LightningModule):
 
         return {
             'val_loss': self.g_val_loss + self.d_val_loss,
+            'progress_bar': dict,
             'log': dict
         }
 
