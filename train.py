@@ -62,11 +62,13 @@ def main(params):
             distributed_backend='dp',
             gpus=setup.cuda_device_count(),
             checkpoint_callback=checkpoint,
+            early_stop_callback=None,
             max_nb_epochs=params.epochs
         )
     else:
         trainer = Trainer(
             checkpoint_callback=checkpoint,
+            early_stop_callback=None,
             max_nb_epochs=params.epochs
         )
 
