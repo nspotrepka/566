@@ -2,40 +2,45 @@ import torch
 from skimage import io, transform, util
 
 class ImageTransform:
-    def __init__(self, width, height, channels):
-        self.width = width
-        self.height = height
-        self.channels = channels
-        self.padding = (self.width - self.height) // 2
+    def __init__(self, size, image_channels):
+        self.size = size
+        self.image_channels = image_channels
 
     def __call__(self, image, reverse=False):
         if reverse:
             # Unscale
             image = (image + 1) / 2
-            # Crop height
-            # Skip to observe artifacts
-            # image = image[:, self.padding:self.padding + self.height, :]
             # Transpose dimensions
             image = image.T
         else:
-            # Resize width and height
-            image = transform.resize(image, (self.width, self.height))
-            # Transpose dimensions
-            image = image.T
-            # Pad channels and height
+            # Calculate padding
+            lr_pad = 0
+            tb_pad = 0
+            if image.shape[0] < image.shape[1]:
+                # Portrait
+                lr_pad = (image.shape[1] - image.shape[0]) // 2
+            else:
+                # Landscape
+                tb_pad = (image.shape[0] - image.shape[1]) // 2
+            # Pad channels and width/height
             image = util.pad(
                 image,
-                ((0, self.channels), (self.padding, self.padding), (0, 0)),
-                mode='reflect')
+                ((lr_pad, lr_pad), (tb_pad, tb_pad), (0, self.image_channels)),
+                mode='reflect'
+            )
             # Crop channels
-            image = image[:self.channels, :, :]
+            image = image[:, :, :self.image_channels]
+            # Resize width and height
+            image = transform.resize(image, (self.size, self.size))
+            # Transpose dimensions
+            image = image.T
             # Scale
             image = image * 2 - 1
         return image
 
 class Image:
     def __init__(self, size=256, image_channels=3):
-        self.transform = ImageTransform(size, size * 3 // 4, image_channels)
+        self.transform = ImageTransform(size, image_channels)
         self.channels = image_channels
 
 class ImageReader(Image):
