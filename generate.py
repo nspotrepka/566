@@ -17,8 +17,8 @@ def main(params):
     checkpoint = torch.load(params.checkpoint_path, map_location=map_location)
     try:
         checkpoint_hparams = checkpoint['hparams']
-        image_channels = checkpoint_hparams['image_channels']
-        audio_channels = checkpoint_hparams['audio_channels']
+        image_channels = checkpoint_hparams['in_channels']
+        audio_channels = checkpoint_hparams['out_channels'] // 2
         model = CycleGAN(None, **checkpoint_hparams)
     except KeyError:
         print('Warning: No hyperparameters found. Using defaults.')
