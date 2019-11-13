@@ -1,5 +1,7 @@
 # Data
 
+**UPDATE SOON!**
+
 ## GAPED
 
 ### Setup
@@ -11,10 +13,12 @@ dataset and copy the `GAPED` folder into this directory.
 
 Data | Dimension | Description
 --- | --- | ---
-Images | (730, 640, 480, 3) | 640 x 480, 3 channels
-Emotion | (730, 4) | arousal, valence, arousal SD, valence SD
+Images | `(730, 3, 128, 128)` <br> `(730, 3, 256, 256)` <br> `(730, 3, 512, 512)` | 128 x 128, 3 channels <br> 256 x 256, 3 channels <br> 512 x 512, 3 channels
+Emotion | `(730, 4)` | arousal, valence, arousal SD, valence SD
 
-Arousal and valence values are between 0 and 1.
+Image is resized and padded to square of `size` in `{128, 256, 512}`.
+
+Arousal and valence values are scaled to `[-1, 1]`.
 
 ## PMEmo
 
@@ -27,7 +31,9 @@ dataset and copy the `PMEmo2019` folder into this directory.
 
 Data | Dimension | Description
 --- | --- | ---
-Audio Samples | (767, 2, 1323000) | 2 channels, 30 seconds, 44.1 kHz
-Static Emotion | (767, 4) | arousal, valence, arousal SD, valence SD
+Audio | `(767, 4, 128, 128)` <br> `(767, 4, 256, 256)` <br> `(767, 4, 512, 512)` | 1 second, 2 channels, 32768 Hz <br> 4 seconds, 2 channels, 32768 Hz <br> 16 seconds, 2 channels, 32768 Hz
+Emotion | `(767, 4)` | arousal, valence, arousal SD, valence SD
 
-Arousal and valence values are between 0 and 1.
+Audio is converted to a sample rate of 32768 Hz, padded or clipped to `length` in seconds, and processed using a STFT with `fft_size = 2 * size - 1`.
+
+Arousal and valence values are scaled to `[-1, 1]`.

@@ -1,5 +1,6 @@
 import csv
 from data.audio import AudioReader
+from data.emotion import EmotionReader
 import numpy as np
 import os
 import torch
@@ -51,20 +52,20 @@ class PMEmo(Dataset):
         self.paths = paths()
         self.index = index()
         self.static = static()
-        self.reader = AudioReader(size, audio_channels, offset)
+        self.read_audio = AudioReader(size, audio_channels, offset)
         self.audio = {}
         self.cache = cache
+        self.read_emotion = EmotionReader()
 
     def __getitem__(self, i):
         key = self.index[i]
         if key in self.audio:
             audio = self.audio[key]
         else:
-            audio = self.reader(self.paths[key])
+            audio = self.read_audio(self.paths[key])
             if self.cache:
                 self.audio[key] = audio
-        emotion = self.static[i]
-        emotion = torch.from_numpy(emotion).float()
+        emotion = self.read_emotion(self.static[i])
         return audio, emotion
 
     def __len__(self):

@@ -69,5 +69,4 @@ class AudioReader(Audio):
         except RuntimeError:
             audio = torch.zeros(self.dim)
         audio = self.transform(audio)
-        audio = audio.float()
-        return audio
+        return audio.float()

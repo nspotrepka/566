@@ -1,3 +1,4 @@
+from data.emotion import EmotionReader
 from data.image import ImageReader
 import numpy as np
 import os
@@ -54,20 +55,20 @@ class GAPED(Dataset):
         self.paths = paths()
         self.names = names()
         self.emotion = emotion()
-        self.reader = ImageReader(size, image_channels)
+        self.read_image = ImageReader(size, image_channels)
         self.image = {}
         self.cache = cache
+        self.read_emotion = EmotionReader()
 
     def __getitem__(self, i):
         key = self.names[i]
         if key in self.image:
             image = self.image[key]
         else:
-            image = self.reader(self.paths[self.names[i]])
+            image = self.read_image(self.paths[self.names[i]])
             if self.cache:
                 self.image[key] = image
-        emotion = self.emotion[i]
-        emotion = torch.from_numpy(emotion).float()
+        emotion = self.read_emotion(self.emotion[i])
         return image, emotion
 
     def __len__(self):

@@ -44,5 +44,5 @@ class ImageReader(Image):
     def __call__(self, path):
         image = io.imread(path)
         image = self.transform(image)
-        image = torch.from_numpy(image).float()
-        return image
+        image = torch.from_numpy(image)
+        return image.float()
