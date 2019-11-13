@@ -19,8 +19,8 @@ class Composite(Dataset):
             for i in range(chunks)])
 
         # Number of in/out channels for neural network
-        self.in_channels = image_channels
-        self.out_channels = audio_channels * 2
+        self.in_channels = self.gaped.channels
+        self.out_channels = self.pmemo.datasets[0].channels
 
         # Set up loaders and iterators
         self.gaped_loader = DataLoader(self.gaped, shuffle=shuffle)

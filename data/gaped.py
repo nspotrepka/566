@@ -56,6 +56,7 @@ class GAPED(Dataset):
         self.names = names()
         self.emotion = emotion()
         self.read_image = ImageReader(size, image_channels)
+        self.channels = self.read_image.channels
         self.image = {}
         self.cache = cache
         self.read_emotion = EmotionReader()

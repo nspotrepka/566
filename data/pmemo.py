@@ -53,6 +53,7 @@ class PMEmo(Dataset):
         self.index = index()
         self.static = static()
         self.read_audio = AudioReader(size, audio_channels, offset)
+        self.channels = self.read_audio.channels
         self.audio = {}
         self.cache = cache
         self.read_emotion = EmotionReader()

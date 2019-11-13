@@ -36,6 +36,7 @@ class ImageTransform:
 class Image:
     def __init__(self, size=256, image_channels=3):
         self.transform = ImageTransform(size, size * 3 // 4, image_channels)
+        self.channels = image_channels
 
 class ImageReader(Image):
     def __init__(self, size=256, image_channels=3):
