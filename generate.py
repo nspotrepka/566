@@ -1,18 +1,32 @@
 from argparse import ArgumentParser
+from argparse import Namespace
+import common.setup as setup
+from data.audio import AudioReader
+from data.audio import AudioWriter
+from data.image import ImageReader
+from data.image import ImageWriter
 from models.cyclegan.model import CycleGAN
+import torch
 
 def main(params):
-    # Load model from checkpoint
-    print('Loading model...')
-    model = CycleGAN.load_from_checkpoint(
-        checkpoint_path=parser.checkpoint_path
-    )
-    model.eval()
-    model.freeze()
-
     size = params.data_size
     image_channels = params.image_channels
     audio_channels = params.audio_channels
+
+    # Load model from checkpoint
+    print('Loading model...')
+    map_location = lambda storage, loc: storage
+    checkpoint = torch.load(params.checkpoint_path, map_location=map_location)
+    try:
+        checkpoint_hparams = checkpoint['hparams']
+        model = CycleGAN(**checkpoint_hparams)
+    except KeyError:
+        print('Warning: No hyperparameters found. Using defaults.')
+        model = CycleGAN(None, image_channels, audio_channels * 2)
+    model.load_state_dict(checkpoint['state_dict'])
+    model.on_load_checkpoint(checkpoint)
+    model.eval()
+    model.freeze()
 
     write_image = ImageWriter(size, image_channels)
     write_audio = AudioWriter(size, audio_channels)
@@ -22,28 +36,33 @@ def main(params):
         print('Reading image...')
         read_image = ImageReader(size, image_channels)
         image = read_image(params.image_path)
+        image = torch.unsqueeze(image, 0)
         if params.fake_audio_path is not None:
             print('Generating fake audio...')
             fake_audio = model.gen_a_to_b(image)
-            write_audio(params.fake_audio_path, fake_audio)
+            write_audio(params.fake_audio_path, torch.squeeze(fake_audio, 0))
         if params.cycle_image_path is not None:
             print('Generating cycle image...')
             cycle_image = model.gen_b_to_a(fake_audio)
-            write_image(params.cycle_image_path, cycle_image)
+            write_image(params.cycle_image_path, torch.squeeze(cycle_image, 0))
 
     # Perform audio to image
     if params.audio_path is not None:
         print('Reading audio...')
+        setup.init_audio()
         read_audio = AudioReader(size, audio_channels)
         audio = read_audio(params.audio_path)
+        setup.shutdown_audio()
+        audio = torch.unsqueeze(audio, 0)
+        write_audio("data/audio/original.wav", torch.squeeze(audio, 0))
         if params.fake_image_path is not None:
             print('Generating fake image...')
-            fake_image = model.gen_b_to_a(image)
-            write_image(params.fake_image_path, fake_image)
+            fake_image = model.gen_b_to_a(audio)
+            write_image(params.fake_image_path, torch.squeeze(fake_image, 0))
         if params.cycle_audio_path is not None:
             print('Generating cycle audio...')
             cycle_audio = model.gen_a_to_b(fake_image)
-            write_audio(params.cycle_audio_path, cycle_audio)
+            write_audio(params.cycle_audio_path, torch.squeeze(cycle_audio, 0))
 
     # Done
     print('Done')
