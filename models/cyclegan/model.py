@@ -24,8 +24,27 @@ class CycleGAN(pl.LightningModule):
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  pool_size=0, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
-                 n_flat=100, n_decay=100, training=True):
+                 epochs=200):
         super(CycleGAN, self).__init__()
+
+        self.hparams = OrderedDict({
+            'in_channels': in_channels,
+            'out_channels': out_channels,
+            'g_filters': g_filters,
+            'd_filters': d_filters,
+            'residual_layers': residual_layers,
+            'dropout': dropout,
+            'learning_rate': learning_rate,
+            'beta_1': beta_1,
+            'beta_2': beta_2,
+            'init_type': init_type,
+            'init_scale': init_scale,
+            'pool_size': pool_size,
+            'lambda_a': lambda_a,
+            'lambda_b': lambda_b,
+            'lambda_id': lambda_id,
+            'epochs': epochs
+        })
 
         self.loader = loader
         self.learning_rate = learning_rate
@@ -34,9 +53,7 @@ class CycleGAN(pl.LightningModule):
         self.lambda_a = lambda_a
         self.lambda_b = lambda_b
         self.lambda_id = lambda_id
-        self.n_flat = n_flat
-        self.n_decay = n_decay
-        self.training = training
+        self.epochs = epochs
         self.g_loss = 0
         self.d_loss = 0
         self.g_val_loss = 0
@@ -53,27 +70,26 @@ class CycleGAN(pl.LightningModule):
                                     init_scale)
         self.gen = nn.ModuleList([self.gen_a_to_b, self.gen_b_to_a])
 
-        if training:
-            # Dimensions must match if using identity loss
-            if lambda_id > 0.0:
-                assert in_channels == out_channels
+        # Dimensions must match if using identity loss
+        if lambda_id > 0.0:
+            assert in_channels == out_channels
 
-            # Data Pools
-            self.fake_a_pool = Pool(pool_size)
-            self.fake_b_pool = Pool(pool_size)
+        # Data Pools
+        self.fake_a_pool = Pool(pool_size)
+        self.fake_b_pool = Pool(pool_size)
 
-            # A -> real/fake
-            self.dis_a = Discriminator(in_channels, d_filters, init_type,
-                                       init_scale)
-            # B -> real/fake
-            self.dis_b = Discriminator(out_channels, d_filters, init_type,
-                                       init_scale)
-            self.dis = nn.ModuleList([self.dis_a, self.dis_b])
+        # A -> real/fake
+        self.dis_a = Discriminator(in_channels, d_filters, init_type,
+                                   init_scale)
+        # B -> real/fake
+        self.dis_b = Discriminator(out_channels, d_filters, init_type,
+                                   init_scale)
+        self.dis = nn.ModuleList([self.dis_a, self.dis_b])
 
-            # Loss Functions
-            self.loss_func_gan = GANLoss()
-            self.loss_func_cycle = nn.L1Loss()
-            self.loss_func_id = nn.L1Loss()
+        # Loss Functions
+        self.loss_func_gan = GANLoss()
+        self.loss_func_cycle = nn.L1Loss()
+        self.loss_func_id = nn.L1Loss()
 
     def forward(self, input):
         image_batch, audio_batch = input
@@ -146,7 +162,8 @@ class CycleGAN(pl.LightningModule):
         self.optimizers = [self.optimizer_g, self.optimizer_d]
 
         def lr_lambda(epoch):
-            return 1.0 - max(0, epoch - self.n_flat) / float(self.n_decay + 1)
+            half = self.epochs // 2
+            return 1.0 - max(0, epoch - half) / float(half + 1)
 
         # Schedulers
         self.schedulers = [

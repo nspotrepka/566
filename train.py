@@ -45,8 +45,7 @@ def main(params):
         lambda_a=params.lambda_a,
         lambda_b=params.lambda_b,
         lambda_id=params.lambda_id,
-        n_flat=params.epochs // 2,
-        n_decay=params.epochs // 2
+        epochs=params.epochs
     )
 
     # Set up trainer
