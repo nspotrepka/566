@@ -41,6 +41,7 @@ class CycleGAN(pl.LightningModule):
         self.d_loss = 0
         self.g_val_loss = 0
         self.d_val_loss = 0
+        self.gd = 0
 
         # A -> B
         self.gen_a_to_b = Generator(in_channels, out_channels, g_filters,
@@ -156,15 +157,20 @@ class CycleGAN(pl.LightningModule):
         return self.optimizers, self.schedulers
 
     def training_step(self, batch, batch_nb, optimizer_i):
+        if self.gd < -1 or self.gd > 1:
+            print('self.gd is not -1, 0, 1')
+        if self.gd == 0:
+            self.forward(batch)
         if optimizer_i == 0:
             # Train generator
-            self.forward(batch)
             loss = self.backward_g()
             dict = {'loss_gen': loss}
+            self.gd += 1
         elif optimizer_i == 1:
             # Train discriminator
             loss = self.backward_d()
             dict = {'loss_dis': loss}
+            self.gd -= 1
 
         return OrderedDict({
             'loss': loss,
