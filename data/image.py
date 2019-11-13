@@ -47,3 +47,11 @@ class ImageReader(Image):
         image = self.transform(image)
         image = torch.from_numpy(image)
         return image.float()
+
+class ImageWriter(Image):
+    def __init__(self, size=256, image_channels=3):
+        super(ImageWriter, self).__init__(size, image_channels)
+
+    def __call__(self, path, image):
+        image = self.transform(image, reverse=True)
+        io.imsave(path, image)

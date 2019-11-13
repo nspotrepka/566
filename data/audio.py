@@ -71,3 +71,17 @@ class AudioReader(Audio):
             audio = torch.zeros(self.dim)
         audio = self.transform(audio)
         return audio.float()
+
+class AudioWriter(Audio):
+    output_rate = 44100
+
+    def __init__(self, size=256, audio_channels=2):
+        super(AudioWriter, self).__init__(size, audio_channels)
+        self.resample = torchaudio.transforms.Resample(
+            Audio.rate, AudioWriter.output_rate)
+
+    def __call__(self, path, audio):
+        audio = self.transform(audio, reverse=True)
+        # This takes a long time
+        audio = self.resample(audio)
+        torchaudio.save(path, audio, AudioWriter.output_rate)
