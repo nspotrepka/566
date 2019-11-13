@@ -84,4 +84,5 @@ class AudioWriter(Audio):
         audio = self.transform(audio, reverse=True)
         # This takes a long time
         audio = self.resample(audio)
+        audio = audio / (1e-9 + torch.max(audio.min().abs(), audio.max().abs()))
         torchaudio.save(path, audio, AudioWriter.output_rate)
