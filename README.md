@@ -15,12 +15,12 @@ python download.py
 
 To confirm that GAPED is properly installed, run the following demo:
 ```
-python -m scripts.demo_gaped.py
+python -m scripts.demo_gaped
 ```
 
 To confirm that PMEmo is properly installed, run the following demo:
 ```
-python -m scripts.demo_pmemo.py
+python -m scripts.demo_pmemo
 ```
 
 ## Development
