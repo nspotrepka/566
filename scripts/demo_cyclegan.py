@@ -38,7 +38,7 @@ def main():
     if setup.cuda_is_available():
         gpus = range(setup.cuda_device_count())
         trainer = Trainer(
-            distributed_backend='dp',
+            distributed_backend='ddp',
             gpus=gpus,
             checkpoint_callback=checkpoint,
             max_nb_epochs=epochs
