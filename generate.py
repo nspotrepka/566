@@ -10,8 +10,6 @@ import torch
 
 def main(params):
     size = params.data_size
-    image_channels = params.image_channels
-    audio_channels = params.audio_channels
 
     # Load model from checkpoint
     print('Loading model...')
@@ -19,9 +17,13 @@ def main(params):
     checkpoint = torch.load(params.checkpoint_path, map_location=map_location)
     try:
         checkpoint_hparams = checkpoint['hparams']
-        model = CycleGAN(**checkpoint_hparams)
+        image_channels = checkpoint_hparams['image_channels']
+        audio_channels = checkpoint_hparams['audio_channels']
+        model = CycleGAN(None, **checkpoint_hparams)
     except KeyError:
         print('Warning: No hyperparameters found. Using defaults.')
+        image_channels = 3
+        audio_channels = 2
         model = CycleGAN(None, image_channels, audio_channels * 2)
     model.load_state_dict(checkpoint['state_dict'])
     model.on_load_checkpoint(checkpoint)
@@ -77,8 +79,6 @@ if __name__ == '__main__':
     parser.add_argument('--cycle_image_path', help='path to save cycle image')
     parser.add_argument('--cycle_audio_path', help='path to save cycle audio')
     parser.add_argument('--data_size', type=int, default=128, help='size of converted audio/image')
-    parser.add_argument('--image_channels', type=int, default=3, help='number of channels to use in source image')
-    parser.add_argument('--audio_channels', type=int, default=2, help='number of channels to use in source audio')
 
     params = parser.parse_args()
 
