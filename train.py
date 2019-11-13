@@ -51,11 +51,11 @@ def main(params):
 
     # Set up trainer
     checkpoint = ModelCheckpoint(
-        filepath=os.getcwd(),
+        filepath=os.path.join(os.getcwd(), 'checkpoints'),
         verbose=True,
         save_best_only=False,
         save_weights_only=False,
-        period=1
+        period=10
     )
     if setup.cuda_is_available():
         trainer = Trainer(
