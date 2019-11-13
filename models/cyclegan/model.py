@@ -1,3 +1,4 @@
+from argparse import Namespace
 from collections import OrderedDict
 from common.loss import GANLoss
 from common.pool import Pool
@@ -27,7 +28,7 @@ class CycleGAN(pl.LightningModule):
                  epochs=200):
         super(CycleGAN, self).__init__()
 
-        self.hparams = OrderedDict({
+        self.hparams = Namespace(**{
             'in_channels': in_channels,
             'out_channels': out_channels,
             'g_filters': g_filters,
