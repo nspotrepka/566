@@ -58,5 +58,6 @@ class ImageWriter(Image):
         super(ImageWriter, self).__init__(size, image_channels)
 
     def __call__(self, path, image):
+        image = image / (1e-9 + torch.max(image.min().abs(), image.max().abs()))
         image = self.transform(image, reverse=True)
         io.imsave(path, image)
