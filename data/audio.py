@@ -82,7 +82,7 @@ class Audio:
 
     # Get length in seconds
     def length(size):
-        return 30#int(4 * (size / 256) ** 2)
+        return 3 * (size / 256) ** 2
 
 class AudioReader(Audio):
     def __init__(self, size=256, audio_channels=2, offset=0):
