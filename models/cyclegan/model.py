@@ -126,7 +126,15 @@ class CycleGAN(pl.LightningModule):
         self.loss_cycle = self.loss_cycle_a + self.loss_cycle_b
 
         self.loss_g = self.loss_gan + self.loss_cycle + self.loss_id
-        return self.loss_g
+
+        losses = {
+            'loss_g': self.loss_g,
+            'loss_gan_a': self.loss_gan_a,
+            'loss_gan_b': self.loss_gan_b,
+            'loss_cycle_a': self.loss_cycle_a,
+            'loss_cycle_b': self.loss_cycle_b
+        }
+        return self.loss_g, losses
 
     def backward_d_func(self, net, real, fake):
         loss_real = self.loss_func_gan(net(real), True)
@@ -137,10 +145,17 @@ class CycleGAN(pl.LightningModule):
         fake_a = self.fake_a_pool.query(self.fake_a)
         fake_b = self.fake_b_pool.query(self.fake_b)
         self.loss_d_a = self.backward_d_func(self.dis_a, self.real_a, fake_a)
+        self.loss_d_a *= 0.5
         self.loss_d_b = self.backward_d_func(self.dis_b, self.real_b, fake_b)
+        self.loss_d_b *= 0.5
         self.loss_d = self.loss_d_a + self.loss_d_b
-        self.loss_d *= 0.5
-        return self.loss_d
+
+        losses = {
+            'loss_d': self.loss_d,
+            'loss_d_a': self.loss_d_a,
+            'loss_d_b': self.loss_d_b
+        }
+        return self.loss_d, losses
 
     @pl.data_loader
     def train_dataloader(self):
@@ -181,13 +196,11 @@ class CycleGAN(pl.LightningModule):
             self.forward(batch)
         if optimizer_i == 0:
             # Train generator
-            loss = self.backward_g()
-            dict = {'loss_gen': loss}
+            loss, dict = self.backward_g()
             self.gd += 1
         elif optimizer_i == 1:
             # Train discriminator
-            loss = self.backward_d()
-            dict = {'loss_dis': loss}
+            loss, dict = self.backward_d()
             self.gd -= 1
 
         return OrderedDict({
