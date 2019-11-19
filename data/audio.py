@@ -63,7 +63,11 @@ class AudioTransform:
                 interpolation = interp1d(log_y, audio, fill_value='extrapolate')
                 audio = torch.tensor(interpolation(new_y), dtype=torch.float32)
             # Scale
-            audio = audio / self.size / self.size
+            # audio = audio / self.size / self.size
+            # Normalize
+            min = audio.min().abs()
+            max = audio.max().abs()
+            audio = audio / (1e-9 + torch.max(min, max))
 
         return audio
 
