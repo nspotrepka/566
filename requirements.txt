@@ -3,5 +3,6 @@ torch
 torchaudio
 pytorch-lightning
 scikit-image
+scipy
 gdown
 tqdm

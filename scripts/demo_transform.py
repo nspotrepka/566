@@ -42,6 +42,7 @@ def main(params):
 
         print('Reading audio...')
         new_audio_path = os.path.join(dir, 'transform_' + base + ext_audio)
+        new_image_path = os.path.join(dir, 'transform_' + base + ext_image)
         setup.init_audio()
         read_audio = AudioReader(size, audio_channels)
         audio = read_audio(audio_path)
@@ -50,6 +51,10 @@ def main(params):
         print('Writing audio...')
         write_audio = AudioWriter(size, audio_channels)
         write_audio(new_audio_path, audio)
+
+        print('Writing image...')
+        write_image = ImageWriter(size, image_channels)
+        write_image(new_image_path, audio)
 
     # Done
     print('Done')
