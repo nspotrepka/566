@@ -11,7 +11,7 @@ class Composite(Dataset):
                  cache=False, shuffle=True):
         # Check for valid size
         assert size == 128 or size == 256 or size == 512
-        chunks = Audio.full_length // Audio.length(size)
+        chunks = int(Audio.full_length // Audio.length(size))
 
         # Choose which subset of music to use
         self.gaped = GAPED(size, image_channels, cache=cache)
