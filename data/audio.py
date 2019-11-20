@@ -4,18 +4,17 @@ from scipy.interpolate import interp1d
 import torch
 import torchaudio
 
-class AudioTransform:
-    def __init__(self, size, audio_channels, rate, log_scale=False):
+class AudioTransformSpectrogram:
+    def __init__(self, size, audio_channels, log_scale=False):
         self.size = size
         self.fft_size = size * 2
         self.hop_size = size * 2
         self.fft_out = self.fft_size // 2 + 1
         self.audio_channels = audio_channels
-        self.rate = rate
         self.log_scale = log_scale
 
     def __call__(self, audio, reverse=False):
-        y = np.abs(np.fft.fftfreq(self.fft_size)[1:self.fft_out]) * self.rate
+        y = np.abs(np.fft.fftfreq(self.fft_size)[1:self.fft_out]) * Audio.rate
         y = torch.tensor(y).float()
         scale = torch.tensor(range(1, self.fft_out + 1))
         if reverse:
@@ -71,13 +70,36 @@ class AudioTransform:
 
         return audio
 
+class AudioTransform:
+    def __init__(self, size, audio_channels, log_scale=False):
+        self.size = size
+        self.audio_channels = audio_channels
+
+    def __call__(self, audio, reverse=False):
+        if reverse:
+            # To 1-D
+            audio = audio.contiguous().view(
+                self.audio_channels, self.size * self.size)
+        else:
+            # Clip length
+            audio = audio[:, :self.size * self.size]
+            # To 2-D
+            audio = audio.contiguous().view(
+                self.audio_channels, self.size, self.size)
+            # Normalize
+            min = audio.min().abs()
+            max = audio.max().abs()
+            audio = audio / (1e-9 + torch.max(min, max))
+
+        return audio
+
 class Audio:
     rate = 44100
     full_length = 30
 
     def __init__(self, size=256, audio_channels=2):
         self.length = Audio.length(size)
-        self.transform = AudioTransform(size, audio_channels, Audio.rate)
+        self.transform = AudioTransform(size, audio_channels)
         self.channels = audio_channels * 2
 
     # Get length in seconds
