@@ -100,7 +100,7 @@ class Audio:
     def __init__(self, size=256, audio_channels=2):
         self.length = Audio.length(size)
         self.transform = AudioTransform(size, audio_channels)
-        self.channels = audio_channels * 2
+        self.channels = audio_channels
 
     # Get length in seconds
     def length(size):
