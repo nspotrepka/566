@@ -21,13 +21,13 @@ def main(params):
     try:
         checkpoint_hparams = checkpoint['hparams']
         image_channels = checkpoint_hparams['in_channels']
-        audio_channels = checkpoint_hparams['out_channels'] // 2
+        audio_channels = checkpoint_hparams['out_channels']
         model = CycleGAN(None, **checkpoint_hparams)
     except KeyError:
         print('Warning: No hyperparameters found. Using defaults.')
         image_channels = 3
         audio_channels = 2
-        model = CycleGAN(None, image_channels, audio_channels * 2)
+        model = CycleGAN(None, image_channels, audio_channels)
     model.load_state_dict(checkpoint['state_dict'])
     model.on_load_checkpoint(checkpoint)
     model.eval()
