@@ -92,6 +92,10 @@ class CycleGAN(pl.LightningModule):
         self.loss_func_cycle = nn.L1Loss()
         self.loss_func_id = nn.L1Loss()
 
+        # Device
+        self.device = next(self.parameters()).device
+        print(self.device)
+
     def forward(self, input):
         image_batch, audio_batch = input
         self.real_a, _ = image_batch
