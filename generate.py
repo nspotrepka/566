@@ -111,15 +111,13 @@ def main(params):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('--checkpoint', help='path to model checkpoint')
-    parser.add_argument('--image', help='path to image')
-    parser.add_argument('--audio', help='path to audio')
-    parser.add_argument('--data_size', type=int, default=128, help='size of converted audio/image')
+    optional = parser._action_groups.pop()
+    required = parser.add_argument_group('required arguments')
+    required.add_argument('--checkpoint', help='path to model checkpoint', required=True)
+    optional.add_argument('--data_size', type=int, default=128, help='size of converted image or audio')
+    optional.add_argument('--image', help='path to image')
+    optional.add_argument('--audio', help='path to audio')
+    parser._action_groups.append(optional)
 
     params = parser.parse_args()
-
-    if params.checkpoint is None:
-        print('Please provide a checkpoint path')
-        parser.print_help()
-
     main(params)
