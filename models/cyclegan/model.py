@@ -144,8 +144,8 @@ class CycleGAN(pl.LightningModule):
     def backward_d(self):
         device_a = next(self.dis_a.parameters()).device
         device_b = next(self.dis_b.parameters()).device
-        fake_a = self.fake_a_pool.query(self.fake_a).detach()
-        fake_b = self.fake_b_pool.query(self.fake_b).detach()
+        fake_a = self.fake_a_pool.query(self.fake_a, device_a).detach()
+        fake_b = self.fake_b_pool.query(self.fake_b, device_b).detach()
         print('---')
         print(device_a)
         print(device_b)

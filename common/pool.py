@@ -7,7 +7,7 @@ class Pool:
         self.pool_size = pool_size
         self.data = []
 
-    def query(self, x):
+    def query(self, x, device):
         if self.pool_size == 0:
             return x
         result = []
@@ -18,7 +18,7 @@ class Pool:
             else:
                 if random.uniform(0, 1) < 0.5:
                     index = random.randint(0, self.pool_size - 1)
-                    temp = self.data[index].clone()
+                    temp = torch.tensor(self.data[index], device=device)
                     self.data[index] = item
                     item = temp
             result.append(item)
