@@ -60,6 +60,7 @@ class CycleGAN(pl.LightningModule):
         self.g_val_loss = 0
         self.d_val_loss = 0
         self.gd = 0
+        self.device = None
 
         # A -> B
         self.gen_a_to_b = Generator(in_channels, out_channels, g_filters,
@@ -91,10 +92,6 @@ class CycleGAN(pl.LightningModule):
         self.loss_func_gan = GANLoss()
         self.loss_func_cycle = nn.L1Loss()
         self.loss_func_id = nn.L1Loss()
-
-        # Device
-        self.device = next(self.parameters()).device
-        print(self.device)
 
     def forward(self, input):
         image_batch, audio_batch = input
@@ -146,6 +143,9 @@ class CycleGAN(pl.LightningModule):
         return loss_real + loss_fake
 
     def backward_d(self):
+        if self.device is None:
+            self.device = next(self.parameters()).device
+            print(self.device)
         fake_a = self.fake_a_pool.query(self.fake_a)
         fake_b = self.fake_b_pool.query(self.fake_b)
         self.loss_d_a = self.backward_d_func(self.dis_a, self.real_a, fake_a)
