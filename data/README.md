@@ -1,7 +1,5 @@
 # Data
 
-## Demo
-
 To confirm that GAPED is properly installed, run the following demo:
 ```
 python scripts/demo_gaped.py
