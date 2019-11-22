@@ -18,7 +18,7 @@ class Pool:
             else:
                 if random.uniform(0, 1) < 0.5:
                     index = random.randint(0, self.pool_size - 1)
-                    temp = self.data[index].copy().to(device)
+                    temp = self.data[index].clone().to(device)
                     self.data[index] = item
                     item = temp
             result.append(item)
