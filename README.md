@@ -11,16 +11,33 @@ pip install -r requirements.txt
 python download.py
 ```
 
-## Demo
+## Training
 
-To confirm that GAPED is properly installed, run the following demo:
+To train your model with the default hyperparameters, run the following:
 ```
-python -m scripts.demo_gaped
+python train.py
 ```
 
-To confirm that PMEmo is properly installed, run the following demo:
+For more information, please consult the help documentation:
 ```
-python -m scripts.demo_pmemo
+python train.py --help
+```
+
+## Evaluation
+
+```
+python generate.py --checkpoint /PATH/TO/MODEL/CHECKPOINT --image /PATH/TO/IMAGE
+```
+
+or
+
+```
+python generate.py --checkpoint /PATH/TO/MODEL/CHECKPOINT --audio /PATH/TO/AUDIO
+```
+
+For more information, please consult the help documentation:
+```
+python generate.py --help
 ```
 
 ## Development
