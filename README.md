@@ -13,29 +13,26 @@ python download.py
 
 ## Training
 
-To train your model with the default hyperparameters, run the following:
+To train your model using the default hyperparameters, run the following:
 ```
 python train.py
 ```
 
-For more information, please consult the help documentation:
+Please consult the help documentation for more information:
 ```
 python train.py --help
 ```
 
 ## Evaluation
 
-To generate audio or image using a trained model, run the following:
-
-```
-python generate.py --checkpoint /PATH/TO/MODEL/CHECKPOINT --audio /PATH/TO/AUDIO
-```
+To generate image or audio from a trained model, run the following:
 
 ```
 python generate.py --checkpoint /PATH/TO/MODEL/CHECKPOINT --image /PATH/TO/IMAGE
+python generate.py --checkpoint /PATH/TO/MODEL/CHECKPOINT --audio /PATH/TO/AUDIO
 ```
 
-For more information, please consult the help documentation:
+Please consult the help documentation for more information:
 ```
 python generate.py --help
 ```
