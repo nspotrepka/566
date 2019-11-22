@@ -25,14 +25,14 @@ python train.py --help
 
 ## Evaluation
 
-```
-python generate.py --checkpoint /PATH/TO/MODEL/CHECKPOINT --image /PATH/TO/IMAGE
-```
-
-or
+To generate audio or image using a trained model, run the following:
 
 ```
 python generate.py --checkpoint /PATH/TO/MODEL/CHECKPOINT --audio /PATH/TO/AUDIO
+```
+
+```
+python generate.py --checkpoint /PATH/TO/MODEL/CHECKPOINT --image /PATH/TO/IMAGE
 ```
 
 For more information, please consult the help documentation:
