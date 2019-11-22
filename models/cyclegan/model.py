@@ -143,8 +143,7 @@ class CycleGAN(pl.LightningModule):
         return loss_real + loss_fake
 
     def backward_d(self):
-        if self.device is None:
-            self.device = next(self.parameters()).device
+        self.device = next(self.parameters()).device
         fake_a = self.fake_a_pool.query(self.fake_a)
         fake_b = self.fake_b_pool.query(self.fake_b)
         fake_a.to(self.device)
