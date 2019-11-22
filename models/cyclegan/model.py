@@ -146,17 +146,6 @@ class CycleGAN(pl.LightningModule):
         device_b = next(self.dis_b.parameters()).device
         fake_a = self.fake_a_pool.query(self.fake_a, device_a).detach()
         fake_b = self.fake_b_pool.query(self.fake_b, device_b).detach()
-        print('---')
-        print(device_a)
-        print(device_b)
-        print('---BEFORE---')
-        print(fake_a.device)
-        print(fake_b.device)
-        fake_a.to(device_a)
-        fake_b.to(device_b)
-        print('---AFTER---')
-        print(fake_a.device)
-        print(fake_b.device)
         self.loss_d_a = self.backward_d_func(self.dis_a, self.real_a, fake_a)
         self.loss_d_a *= 0.5
         self.loss_d_b = self.backward_d_func(self.dis_b, self.real_b, fake_b)
