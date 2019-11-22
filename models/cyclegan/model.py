@@ -60,7 +60,6 @@ class CycleGAN(pl.LightningModule):
         self.g_val_loss = 0
         self.d_val_loss = 0
         self.gd = 0
-        self.device = None
 
         # A -> B
         self.gen_a_to_b = Generator(in_channels, out_channels, g_filters,
@@ -143,11 +142,17 @@ class CycleGAN(pl.LightningModule):
         return loss_real + loss_fake
 
     def backward_d(self):
-        self.device = next(self.loss_func_gan.loss_func.parameters()).device
+        device_a = next(self.dis_a.parameters()).device
+        device_b = next(self.dis_b.parameters()).device
         fake_a = self.fake_a_pool.query(self.fake_a)
         fake_b = self.fake_b_pool.query(self.fake_b)
-        fake_a.to(self.device)
-        fake_b.to(self.device)
+        print(device_a)
+        print(device_b)
+        print(fake_a.device)
+        print(fake_b.device)
+        print('---')
+        #fake_a.to(self.device)
+        #fake_b.to(self.device)
         self.loss_d_a = self.backward_d_func(self.dis_a, self.real_a, fake_a)
         self.loss_d_a *= 0.5
         self.loss_d_b = self.backward_d_func(self.dis_b, self.real_b, fake_b)

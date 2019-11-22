@@ -63,6 +63,11 @@ def main(params):
         cycle_image = model.gen_b_to_a(fake_audio)
         write_image(cycle_image_path, torch.squeeze(cycle_image, 0))
 
+        print('Generating diff image...')
+        diff_image_path = os.path.join(dir, 'diff_' + base + ext_image)
+        diff_image = cycle_image - image
+        write_image(diff_image_path, torch.squeeze(diff_image, 0))
+
     # Perform audio to image
     if audio_path is not None:
         dir = os.path.dirname(audio_path)
@@ -92,6 +97,14 @@ def main(params):
         cycle_audio_out = torch.squeeze(cycle_audio, 0)
         write_image(cycle_image_path, cycle_audio_out)
         write_audio(cycle_audio_path, cycle_audio_out)
+
+        print('Generating diff audio...')
+        diff_image_path = os.path.join(dir, 'diff_' + base + ext_image)
+        diff_audio_path = os.path.join(dir, 'diff_' + base + ext_audio)
+        diff_audio = cycle_audio - audio
+        diff_audio_out = torch.squeeze(diff_audio, 0)
+        write_image(diff_image_path, diff_audio_out)
+        write_audio(diff_audio_path, diff_audio_out)
 
     # Done
     print('Done')
