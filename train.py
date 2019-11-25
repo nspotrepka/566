@@ -16,20 +16,32 @@ def main(params):
     audio_channels = params.audio_channels
     batch_size = params.batch_size
 
-    # Load data
-    dataset = Composite(
+    # Load training data
+    train_dataset = Composite(
         size=params.data_size,
         image_channels=params.image_channels,
         audio_channels=params.audio_channels,
-        cache=params.cache != 0
+        cache=params.cache != 0,
+        validation=False
     )
-    loader = setup.load(dataset, batch_size)
+    train_loader = setup.load(train_dataset, batch_size)
+
+    # Load validation data
+    val_dataset = Composite(
+        size=params.data_size,
+        image_channels=params.image_channels,
+        audio_channels=params.audio_channels,
+        cache=params.cache != 0,
+        validation=True
+    )
+    val_loader = setup.load(val_dataset, batch_size)
 
     # Create model
-    in_channels = dataset.in_channels
-    out_channels = dataset.out_channels
+    in_channels = train_dataset.in_channels
+    out_channels = train_dataset.out_channels
     model = CycleGAN(
-        loader=loader,
+        train_loader=train_loader,
+        val_loader=val_loader,
         in_channels=in_channels,
         out_channels=out_channels,
         g_filters=params.g_filters,
@@ -51,10 +63,9 @@ def main(params):
     # Set up trainer
     checkpoint = ModelCheckpoint(
         filepath=os.path.join(os.getcwd(), 'checkpoints'),
+        monitor='val_loss',
         verbose=True,
-        save_best_only=False,
-        save_weights_only=False,
-        period=10
+        prefix=params.prefix
     )
     if setup.cuda_is_available():
         trainer = Trainer(
@@ -78,6 +89,7 @@ def main(params):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
+    parser.add_argument('--prefix', default='', help='model checkpoint prefix')
     parser.add_argument('--epochs', type=int, default=200, help='number of epochs to train')
     parser.add_argument('--batch_size', type=int, default=8, help='size of the batches')
     parser.add_argument('--data_size', type=int, default=128, help='size of converted image or audio')

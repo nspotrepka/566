@@ -8,15 +8,26 @@ from torch.utils.data import DataLoader
 
 class Composite(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
-                 cache=False, shuffle=True):
+                 cache=False, shuffle=True, validation=False):
         # Check for valid size
         assert size == 128 or size == 256 or size == 512
         chunks = int(Audio.full_length // Audio.length(size))
+        if size == 128:
+            train_chunks = int(chunks * 0.9)
+        elif size == 256:
+            train_chunks = int(chunks * 0.8)
+        elif size == 512:
+            train_chunks = int(chunks * 0.5)
+        val_chunks = chunks - train_chunks
 
         # Choose which subset of music to use
         self.gaped = GAPED(size, image_channels, cache=cache)
-        self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
-            for i in range(chunks)])
+        if validation:
+            self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
+                for i in range(train_chunks, train_chunks + val_chunks)])
+        else:
+            self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
+                for i in range(train_chunks)])
 
         # Number of in/out channels for neural network
         self.in_channels = self.gaped.channels
