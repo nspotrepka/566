@@ -8,6 +8,7 @@ class AudioTransform:
     def __init__(self, size, audio_channels, log_scale=False):
         self.size = size
         self.audio_channels = audio_channels
+        self.channels = audio_channels
 
     def __call__(self, audio, reverse=False):
         if reverse:
@@ -34,7 +35,7 @@ class Audio:
     def __init__(self, size=256, audio_channels=2):
         self.length = Audio.length(size)
         self.transform = AudioTransform(size, audio_channels)
-        self.channels = audio_channels
+        self.channels = self.transform.channels
 
     # Get length in seconds
     def length(size):

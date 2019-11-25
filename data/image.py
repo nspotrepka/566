@@ -5,6 +5,7 @@ class ImageTransform:
     def __init__(self, size, image_channels):
         self.size = size
         self.image_channels = image_channels
+        self.channels = image_channels
 
     def __call__(self, image, reverse=False):
         if reverse:
@@ -48,7 +49,7 @@ class ImageTransform:
 class Image:
     def __init__(self, size=256, image_channels=3):
         self.transform = ImageTransform(size, image_channels)
-        self.channels = image_channels
+        self.channels = self.transform.channels
 
 class ImageReader(Image):
     def __init__(self, size=256, image_channels=3):
