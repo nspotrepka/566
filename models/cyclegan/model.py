@@ -20,7 +20,7 @@ import torch.optim as optim
 class CycleGAN(pl.LightningModule):
     def __init__(self, train_loader, val_loader,
                  in_channels, out_channels, g_filters=64, d_filters=64,
-                 residual_layers=9, dropout=False, learning_rate=0.0002,
+                 residual_layers=9, extra=False, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  pool_size=50, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
                  lambda_d=0.5, epochs=200):
@@ -81,10 +81,10 @@ class CycleGAN(pl.LightningModule):
 
         # A -> real/fake
         self.dis_a = Discriminator(in_channels, d_filters, init_type,
-                                   init_scale)
+                                   init_scale, extra)
         # B -> real/fake
         self.dis_b = Discriminator(out_channels, d_filters, init_type,
-                                   init_scale)
+                                   init_scale, extra)
         self.dis = nn.ModuleList([self.dis_a, self.dis_b])
 
         # Loss Functions
