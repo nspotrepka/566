@@ -68,6 +68,16 @@ def main(params):
         diff_image = cycle_image - image
         write_image(diff_image_path, torch.squeeze(diff_image, 0))
 
+        print('Generating repeat audio...')
+        repeat_image_path = os.path.join(dir, 'repeat_' + base + ext_image)
+        repeat_audio_path = os.path.join(dir, 'repeat_' + base + ext_audio)
+        fake_image = torch.squeeze(fake_audio, 0)
+        fake_image = read_image.transform(fake_image)
+        fake_image = torch.unsqueeze(fake_image, 0)
+        repeat_audio = model.gen_a_to_b(fake_image)
+        write_image(repeat_image_path, torch.squeeze(repeat_audio, 0))
+        write_audio(repeat_audio_path, torch.squeeze(repeat_audio, 0))
+
     # Perform audio to image
     if audio_path is not None:
         dir = os.path.dirname(audio_path)
@@ -105,6 +115,16 @@ def main(params):
         diff_audio_out = torch.squeeze(diff_audio, 0)
         write_image(diff_image_path, diff_audio_out)
         write_audio(diff_audio_path, diff_audio_out)
+
+        print('Generating repeat image...')
+        fake_audio = torch.squeeze(fake_image, 0)[:2]
+        print(fake_audio.shape)
+        fake_audio = fake_audio.contiguous().view(2, -1)
+        fake_audio = read_audio.transform(fake_audio)
+        fake_audio = torch.unsqueeze(fake_audio, 0)
+        repeat_image = model.gen_b_to_a(fake_audio)
+        repeat_image_path = os.path.join(dir, 'repeat_' + base + ext_image)
+        write_image(repeat_image_path, torch.squeeze(repeat_image, 0))
 
     # Done
     print('Done')
