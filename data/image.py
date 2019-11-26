@@ -44,6 +44,8 @@ class ImageTransform:
             image = image.T
             # Scale
             image = image * 2 - 1
+            # Convert to float tensor
+            image = torch.from_numpy(image).float()
         return image
 
 class Image:
@@ -58,8 +60,7 @@ class ImageReader(Image):
     def __call__(self, path):
         image = io.imread(path)
         image = self.transform(image)
-        image = torch.from_numpy(image)
-        return image.float()
+        return image
 
 class ImageWriter(Image):
     def __init__(self, size=256, image_channels=3):

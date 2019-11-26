@@ -60,7 +60,7 @@ class AudioReader(Audio):
         except RuntimeError:
             audio = torch.zeros(self.dim)
         audio = self.transform(audio)
-        return audio.float()
+        return audio
 
 class AudioWriter(Audio):
     output_rate = 44100
