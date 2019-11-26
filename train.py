@@ -109,6 +109,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_a', type=float, default=10.0, help='coefficient for cycle A loss')
     parser.add_argument('--lambda_b', type=float, default=10.0, help='coefficient for cycle B loss')
     parser.add_argument('--lambda_id', type=float, default=0.0, help='coefficient for identity loss, input/output dimension must match')
+    parser.add_argument('--lambda_d', type=float, default=0.5, help='coefficient for discriminator loss')
 
     params = parser.parse_args()
     main(params)

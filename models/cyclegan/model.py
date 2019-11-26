@@ -25,7 +25,7 @@ class CycleGAN(pl.LightningModule):
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  pool_size=50, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
-                 epochs=200):
+                 lambda_d=0.5, epochs=200):
         super(CycleGAN, self).__init__()
 
         self.hparams = Namespace(**{
@@ -55,6 +55,7 @@ class CycleGAN(pl.LightningModule):
         self.lambda_a = lambda_a
         self.lambda_b = lambda_b
         self.lambda_id = lambda_id
+        self.lambda_d = lambda_d
         self.epochs = epochs
         self.g_loss = 0
         self.d_loss = 0
@@ -148,9 +149,9 @@ class CycleGAN(pl.LightningModule):
         fake_a = self.fake_a_pool.query(self.fake_a, device_a).detach()
         fake_b = self.fake_b_pool.query(self.fake_b, device_b).detach()
         self.loss_d_a = self.backward_d_func(self.dis_a, self.real_a, fake_a)
-        self.loss_d_a *= 0.5
+        self.loss_d_a *= self.lambda_d
         self.loss_d_b = self.backward_d_func(self.dis_b, self.real_b, fake_b)
-        self.loss_d_b *= 0.5
+        self.loss_d_b *= self.lambda_d
         self.loss_d = self.loss_d_a + self.loss_d_b
 
         losses = {
