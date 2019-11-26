@@ -143,11 +143,15 @@ class CycleGAN(pl.LightningModule):
         loss_fake = self.loss_func_gan(net(fake), False)
         return loss_real + loss_fake
 
-    def backward_d(self):
+    def backward_d(self, use_pool=True):
         device_a = next(self.dis_a.parameters()).device
         device_b = next(self.dis_b.parameters()).device
-        fake_a = self.fake_a_pool.query(self.fake_a, device_a).detach()
-        fake_b = self.fake_b_pool.query(self.fake_b, device_b).detach()
+        if use_pool:
+            fake_a = self.fake_a_pool.query(self.fake_a, device_a).detach()
+            fake_b = self.fake_b_pool.query(self.fake_b, device_b).detach()
+        else:
+            fake_a = self.fake_a
+            fake_b = self.fake_b
         self.loss_d_a = self.backward_d_func(self.dis_a, self.real_a, fake_a)
         self.loss_d_a *= self.lambda_d
         self.loss_d_b = self.backward_d_func(self.dis_b, self.real_b, fake_b)
@@ -220,7 +224,7 @@ class CycleGAN(pl.LightningModule):
     def validation_step(self, batch, batch_nb):
         self.forward(batch)
         g_loss, _ = self.backward_g()
-        d_loss, _ = self.backward_d()
+        d_loss, _ = self.backward_d(use_pool=False)
 
         return OrderedDict({
             'val_loss': 0.5 * (g_loss + d_loss)
