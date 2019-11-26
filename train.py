@@ -47,7 +47,6 @@ def main(params):
         g_filters=params.g_filters,
         d_filters=params.d_filters,
         residual_layers=params.residual_layers,
-        extra=params.d_extra != 0,
         dropout=params.dropout != 0,
         learning_rate=params.lr,
         beta_1=params.b1,
@@ -100,7 +99,6 @@ if __name__ == '__main__':
     parser.add_argument('--g_filters', type=int, default=64, help='number of base filters in the generator')
     parser.add_argument('--d_filters', type=int, default=64, help='number of base filters in the discriminator')
     parser.add_argument('--residual_layers', type=int, default=9, help='number of residual layers')
-    parser.add_argument('--d_extra', type=int, default=0, help='use extra leaky conv layer in discriminator')
     parser.add_argument('--lr', type=float, default=0.0002, help='adam: learning rate')
     parser.add_argument('--b1', type=float, default=0.5, help='adam: decay of first order momentum of gradient')
     parser.add_argument('--b2', type=float, default=0.999, help='adam: decay of second order momentum of gradient')
