@@ -14,7 +14,6 @@ class Pool:
         for item in x:
             item = torch.unsqueeze(item.data, 0)
             if len(self.data) < self.pool_size:
-
                 self.data.append(item)
             else:
                 if random.uniform(0, 1) < 0.5:
