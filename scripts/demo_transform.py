@@ -63,7 +63,7 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--image', help='path to image')
     parser.add_argument('--audio', help='path to audio')
-    parser.add_argument('--data_size', type=int, default=128, help='size of converted audio/image')
+    parser.add_argument('--data_size', type=int, default=256, help='size of converted audio/image')
 
     params = parser.parse_args()
 

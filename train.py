@@ -92,7 +92,7 @@ if __name__ == '__main__':
     parser.add_argument('--prefix', default='', help='model checkpoint prefix')
     parser.add_argument('--epochs', type=int, default=200, help='number of epochs to train')
     parser.add_argument('--batch_size', type=int, default=8, help='size of the batches')
-    parser.add_argument('--data_size', type=int, default=128, help='size of converted image or audio')
+    parser.add_argument('--data_size', type=int, default=256, help='size of converted image or audio')
     parser.add_argument('--image_channels', type=int, default=3, help='number of channels to use in source image')
     parser.add_argument('--audio_channels', type=int, default=2, help='number of channels to use in source audio')
     parser.add_argument('--cache', type=int, default=1, help='cache audio/image data after loading: 0 or 1')
