@@ -14,12 +14,13 @@ class Pool:
         for item in x:
             item = torch.unsqueeze(item.data, 0)
             if len(self.data) < self.pool_size:
+
                 self.data.append(item)
             else:
                 if random.uniform(0, 1) < 0.5:
                     index = random.randint(0, self.pool_size - 1)
                     temp = self.data[index].clone().to(device)
-                    self.data[index] = item
+                    self.data[index] = item.to('cpu')
                     item = temp
             result.append(item)
         result = torch.cat(result, 0)
