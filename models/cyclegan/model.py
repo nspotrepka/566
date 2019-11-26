@@ -13,10 +13,8 @@ import torch.autograd as autograd
 import torch.nn as nn
 import torch.optim as optim
 
-# Test normal init vs. xavier normal init
-# Test no dropout vs. dropout
+# Test normal init vs. xavier normal init vs. kaiming vs. orthogonal
 # Test generator 64 vs. 32
-# Test input size 128 vs 256 vs 512
 # Figure out how many epochs to train (128, 256, 512)
 
 class CycleGAN(pl.LightningModule):
