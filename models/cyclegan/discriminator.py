@@ -17,7 +17,9 @@ class Discriminator(nn.Module):
             LeakyConvBlock(
                 filters * 2, filters * 4, kernel_size=4, stride=2, padding=p),
             LeakyConvBlock(
-                filters * 4, filters * 8, kernel_size=4, stride=1, padding=p),
+                filters * 4, filters * 8, kernel_size=4, stride=2, padding=p),
+            LeakyConvBlock(
+                filters * 8, filters * 8, kernel_size=4, stride=1, padding=p),
             LeakyConvBlock(
                 filters * 8, 1, kernel_size=4, stride=1, padding=p,
                 instance_norm=False, leaky_relu=False))
