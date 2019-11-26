@@ -22,8 +22,8 @@ class CycleGAN(pl.LightningModule):
                  in_channels, out_channels, g_filters=64, d_filters=64,
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
-                 pool_size=50, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
-                 lambda_d=0.5, epochs=200):
+                 pool_size_a=50, pool_size_b=50, lambda_a=10.0, lambda_b=10.0,
+                 lambda_id=0.0, lambda_d=0.5, epochs=200):
         super(CycleGAN, self).__init__()
 
         self.hparams = Namespace(**{
@@ -38,10 +38,12 @@ class CycleGAN(pl.LightningModule):
             'beta_2': beta_2,
             'init_type': init_type,
             'init_scale': init_scale,
-            'pool_size': pool_size,
+            'pool_size_a': pool_size_a,
+            'pool_size_b': pool_size_b,
             'lambda_a': lambda_a,
             'lambda_b': lambda_b,
             'lambda_id': lambda_id,
+            'lambda_d': lambda_d,
             'epochs': epochs
         })
 
@@ -76,8 +78,8 @@ class CycleGAN(pl.LightningModule):
             assert in_channels == out_channels
 
         # Data Pools
-        self.fake_a_pool = Pool(pool_size)
-        self.fake_b_pool = Pool(pool_size)
+        self.fake_a_pool = Pool(pool_size_a)
+        self.fake_b_pool = Pool(pool_size_b)
 
         # A -> real/fake
         self.dis_a = Discriminator(in_channels, d_filters, init_type,
