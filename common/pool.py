@@ -19,7 +19,7 @@ class Pool:
                 if random.uniform(0, 1) < 0.5:
                     index = random.randint(0, self.pool_size - 1)
                     temp = self.data[index].clone().to(device)
-                    self.data[index] = item.clone().to('cpu')
+                    self.data[index] = item.to('cpu')
                     item = temp
             result.append(item)
         result = torch.cat(result, 0)
