@@ -1,6 +1,6 @@
-# MARIO
+# mario
 
-**MARIO** is a research project exploring the relationships between music and
+**mario** is a research project exploring the relationships between music and
 art through deep learning.
 
 ## Setup
