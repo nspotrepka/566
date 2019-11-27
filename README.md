@@ -15,7 +15,7 @@ python download.py
 
 To train your model using the default hyperparameters, run the following:
 ```
-python train.py --prefix CHECKPOINT_PREFIX
+python train.py --prefix some_prefix_for_checkpoint
 ```
 
 Please consult the help documentation for more information:
