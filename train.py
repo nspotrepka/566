@@ -90,7 +90,7 @@ def main(params):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('--prefix', default='', help='model checkpoint prefix')
+    parser.add_argument('--prefix', default='', help='model checkpoint file name prefix')
     parser.add_argument('--epochs', type=int, default=200, help='number of epochs to train')
     parser.add_argument('--batch_size', type=int, default=8, help='size of the batches')
     parser.add_argument('--data_size', type=int, default=256, help='size of converted image or audio')
