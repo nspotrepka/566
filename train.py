@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import common.setup as setup
 from data.composite import Composite
+from data.composite import CompositeEmotion
 from models.cyclegan.model import CycleGAN
 import os
 from pytorch_lightning import Trainer
@@ -15,9 +16,10 @@ def main(params):
     image_channels = params.image_channels
     audio_channels = params.audio_channels
     batch_size = params.batch_size
+    dataset = CompositeEmotion if params.emotion != 0 else Composite
 
     # Load training data
-    train_dataset = Composite(
+    train_dataset = dataset(
         size=params.data_size,
         image_channels=params.image_channels,
         audio_channels=params.audio_channels,
@@ -27,7 +29,7 @@ def main(params):
     train_loader = setup.load(train_dataset, batch_size)
 
     # Load validation data
-    val_dataset = Composite(
+    val_dataset = dataset(
         size=params.data_size,
         image_channels=params.image_channels,
         audio_channels=params.audio_channels,
@@ -112,6 +114,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_b', type=float, default=10.0, help='coefficient for cycle B loss')
     parser.add_argument('--lambda_id', type=float, default=0.0, help='coefficient for identity loss, input/output dimension must match')
     parser.add_argument('--lambda_d', type=float, default=0.5, help='coefficient for discriminator loss')
+    parser.add_argument('--emotion', type=int, default=0, help='concatenate emotion onto data: 0 or 1')
 
     params = parser.parse_args()
     main(params)

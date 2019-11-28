@@ -6,6 +6,30 @@ from torch.utils.data import ConcatDataset
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
+class CompositeEmotion(Dataset):
+    def __init__(self, size=256, image_channels=3, audio_channels=2,
+                 cache=False, shuffle=True, validation=False):
+        self.composite = Composite(size, image_channels, audio_channels, cache,
+                                   shuffle, validation)
+        self.in_channels = self.composite.in_channels + 4
+        self.out_channels = self.composite.out_channels + 4
+
+    def __getitem__(self, i):
+        image_batch, audio_batch = self.composite.__getitem__(i)
+        image, image_emotion = image_batch
+        audio, audio_emotion = audio_batch
+        image_emotion = image_emotion[:2]
+        audio_emotion = audio_emotion[:2]
+        shape = [image.shape[2], image.shape[1], image_emotion.shape[0]]
+        image_emotion = image_emotion.expand(shape).T
+        audio_emotion = audio_emotion.expand(shape).T
+        image = torch.cat([image, image_emotion, audio_emotion])
+        audio = torch.cat([audio, audio_emotion, image_emotion])
+        return [image, []], [audio, []]
+
+    def __len__(self):
+        return self.composite.__len__()
+
 class Composite(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
                  cache=False, shuffle=True, validation=False):
