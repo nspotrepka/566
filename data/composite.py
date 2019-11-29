@@ -23,6 +23,8 @@ class CompositeEmotion(Dataset):
         shape = [image.shape[2], image.shape[1], image_emotion.shape[0]]
         image_emotion = image_emotion.expand(shape).T
         audio_emotion = audio_emotion.expand(shape).T
+        image_emotion += torch.randn(image_emotion.shape) * 1e-9
+        audio_emotion += torch.randn(audio_emotion.shape) * 1e-9
         image = torch.cat([image, image_emotion, audio_emotion])
         audio = torch.cat([audio, audio_emotion, image_emotion])
         return [image, []], [audio, []]
