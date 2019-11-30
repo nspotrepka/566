@@ -224,7 +224,7 @@ class CycleGAN(pl.LightningModule):
     def validation_step(self, batch, batch_nb):
         self.forward(batch)
         g_loss, _ = self.backward_g()
-        d_loss, _ = self.backward_d(use_pool=False)
+        d_loss, _ = self.backward_d()
 
         return OrderedDict({
             'val_loss': 0.5 * (g_loss + d_loss)
