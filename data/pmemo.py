@@ -48,11 +48,12 @@ def static():
     return np.hstack([mean, std])
 
 class PMEmo(Dataset):
-    def __init__(self, size=256, audio_channels=2, offset=0, cache=False):
+    def __init__(self, size=256, audio_channels=2, spectrogram=False, offset=0,
+                 cache=False):
         self.paths = paths()
         self.index = index()
         self.static = static()
-        self.read_audio = AudioReader(size, audio_channels, offset)
+        self.read_audio = AudioReader(size, audio_channels, spectrogram, offset)
         self.channels = self.read_audio.channels
         self.audio = {}
         self.cache = cache

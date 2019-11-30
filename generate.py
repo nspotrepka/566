@@ -118,7 +118,6 @@ def main(params):
 
         print('Generating repeat image...')
         fake_audio = torch.squeeze(fake_image, 0)[:2]
-        print(fake_audio.shape)
         fake_audio = fake_audio.contiguous().view(2, -1)
         fake_audio = read_audio.transform(fake_audio)
         fake_audio = torch.unsqueeze(fake_audio, 0)
@@ -137,6 +136,7 @@ if __name__ == '__main__':
     required.add_argument('--checkpoint', help='path to model checkpoint', required=True)
     optional.add_argument('--image', help='path to image')
     optional.add_argument('--audio', help='path to audio')
+    optional.add_argument('--spectrogram', type=int, default=0, help='use spectrogram in audio transformation: 0 or 1')
     parser._action_groups.append(optional)
 
     params = parser.parse_args()

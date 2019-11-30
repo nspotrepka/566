@@ -8,9 +8,10 @@ from torch.utils.data import DataLoader
 
 class CompositeEmotion(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
-                 cache=False, shuffle=True, validation=False):
-        self.composite = Composite(size, image_channels, audio_channels, cache,
-                                   shuffle, validation)
+                 spectrogram=False, cache=False, shuffle=True,
+                 validation=False):
+        self.composite = Composite(size, image_channels, audio_channels,
+                                   spectrogram, cache, shuffle, validation)
         self.in_channels = self.composite.in_channels + 4
         self.out_channels = self.composite.out_channels + 4
 
@@ -34,10 +35,11 @@ class CompositeEmotion(Dataset):
 
 class Composite(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
-                 cache=False, shuffle=True, validation=False):
+                 spectrogram=False, cache=False, shuffle=True,
+                 validation=False):
         # Check for valid size
         assert size == 128 or size == 256 or size == 512
-        chunks = int(Audio.full_length // Audio.length(size))
+        chunks = int(Audio.full_length // Audio.length(size, spectrogram))
         if size == 128:
             train_chunks = int(chunks * 0.9)
         elif size == 256:
@@ -49,10 +51,12 @@ class Composite(Dataset):
         # Choose which subset of music to use
         self.gaped = GAPED(size, image_channels, cache=cache)
         if validation:
-            self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
+            self.pmemo = ConcatDataset(
+                [PMEmo(size, audio_channels, spectrogram, i, cache)
                 for i in range(train_chunks, train_chunks + val_chunks)])
         else:
-            self.pmemo = ConcatDataset([PMEmo(size, audio_channels, i, cache)
+            self.pmemo = ConcatDataset(
+                [PMEmo(size, audio_channels, spectrogram, i, cache)
                 for i in range(train_chunks)])
 
         # Number of in/out channels for neural network

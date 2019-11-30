@@ -23,6 +23,7 @@ def main(params):
         size=params.data_size,
         image_channels=params.image_channels,
         audio_channels=params.audio_channels,
+        spectrogram=params.spectrogram != 0,
         cache=params.cache != 0,
         validation=False
     )
@@ -33,6 +34,7 @@ def main(params):
         size=params.data_size,
         image_channels=params.image_channels,
         audio_channels=params.audio_channels,
+        spectrogram=params.spectrogram != 0,
         cache=params.cache != 0,
         validation=True
     )
@@ -115,6 +117,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_id', type=float, default=0.0, help='coefficient for identity loss, input/output dimension must match')
     parser.add_argument('--lambda_d', type=float, default=0.5, help='coefficient for discriminator loss')
     parser.add_argument('--emotion', type=int, default=0, help='concatenate emotion onto data: 0 or 1')
+    parser.add_argument('--spectrogram', type=int, default=0, help='use spectrogram in audio transformation: 0 or 1')
 
     params = parser.parse_args()
     main(params)
