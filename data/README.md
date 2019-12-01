@@ -39,7 +39,7 @@ dataset and copy the `PMEmo2019` folder into this directory.
 
 Data | Dimension | Description
 --- | --- | ---
-Audio | `(767, 4, 128, 128)` <br> `(767, 4, 256, 256)` <br> `(767, 4, 512, 512)` | 1 second, 2 channels, 32768 Hz <br> 4 seconds, 2 channels, 32768 Hz <br> 16 seconds, 2 channels, 32768 Hz
+Audio | `(767, 4, 128, 128)` <br> `(767, 4, 256, 256)` <br> `(767, 4, 512, 512)` | 0.375 seconds, 2 channels, 44100 Hz <br> 1.5 seconds, 2 channels, 44100 Hz <br> 6 seconds, 2 channels, 44100 Hz
 Emotion | `(767, 4)` | arousal, valence, arousal SD, valence SD
 
 Audio is converted to a sample rate of 44100 Hz, clipped (or padded) to `length` in seconds, reshaped to square dimensions, and normalized.
