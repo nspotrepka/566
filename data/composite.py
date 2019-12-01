@@ -1,5 +1,6 @@
 from data.audio import Audio
 from data.gaped import GAPED
+from data.lakh import Lakh
 from data.pmemo import PMEmo
 import torch
 from torch.utils.data import ConcatDataset
