@@ -51,9 +51,15 @@ def emotion():
     return np.array(data)
 
 class GAPED(Dataset):
-    def __init__(self, size=256, image_channels=3, cache=False):
+    def __init__(self, size=256, image_channels=3, cache=False,
+                 validation=False):
         self.paths = paths()
         self.names = names()
+        validation_cut = int(len(self.names) * 0.8)
+        if validation:
+            self.names = self.names[validation_cut:]
+        else:
+            self.names = self.names[:validation_cut]
         self.emotion = emotion()
         self.read_image = ImageReader(size, image_channels)
         self.channels = self.read_image.channels
