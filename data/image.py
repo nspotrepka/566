@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from skimage import io, transform, util
 
@@ -17,7 +18,7 @@ class ImageTransform:
                 mode='constant'
             )
             # Unscale
-            image = (image + 1) / 2
+            image = (image + 1) / 2 * 255
             # Transpose dimensions
             image = image.T
         else:
