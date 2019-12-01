@@ -5,6 +5,8 @@ from data.audio import AudioReader
 from data.audio import AudioWriter
 from data.image import ImageReader
 from data.image import ImageWriter
+from data.midi import MidiReader
+from data.midi import MidiWriter
 from models.cyclegan.model import CycleGAN
 import os
 import torch
@@ -12,7 +14,7 @@ import torch
 def main(params):
     size = params.data_size
     image_path = params.image
-    audio_path = params.audio
+    audio_path = params.music
 
     # Load model from checkpoint
     print('Loading model...')
@@ -26,7 +28,12 @@ def main(params):
     except KeyError:
         print('Warning: No hyperparameters found. Using defaults.')
         image_channels = 3
-        audio_channels = 2
+        if params.spectrogram:
+            audio_channels = 4
+        elif params.midi:
+            audio_channels = 1
+        else:
+            audio_channels = 2
         model = CycleGAN(None, None, image_channels, audio_channels)
     model.load_state_dict(checkpoint['state_dict'])
     model.on_load_checkpoint(checkpoint)
@@ -34,9 +41,14 @@ def main(params):
     model.freeze()
 
     write_image = ImageWriter(size, image_channels)
-    write_audio = AudioWriter(size, audio_channels)
+    if params.midi:
+        write_audio = MidiWriter(size, audio_channels)
+    else:
+        write_audio = AudioWriter(size, audio_channels)
     ext_image = '.png'
-    ext_audio = '.wav'
+    ext_audio = '.mid' if params.midi else '.wav'
+
+    audio_str = 'midi' if params.midi else 'audio'
 
     # Perform image to audio
     if image_path is not None:
@@ -50,7 +62,7 @@ def main(params):
         image = torch.unsqueeze(image, 0)
         write_image(original_image_path, torch.squeeze(image, 0))
 
-        print('Generating fake audio...')
+        print('Generating fake ' + audio_str + '...')
         fake_image_path = os.path.join(dir, 'fake_' + base + ext_image)
         fake_audio_path = os.path.join(dir, 'fake_' + base + ext_audio)
         fake_audio = model.gen_a_to_b(image)
@@ -68,7 +80,7 @@ def main(params):
         diff_image = cycle_image - image
         write_image(diff_image_path, torch.squeeze(diff_image, 0))
 
-        print('Generating repeat audio...')
+        print('Generating repeat ' + audio_str + '...')
         repeat_image_path = os.path.join(dir, 'repeat_' + base + ext_image)
         repeat_audio_path = os.path.join(dir, 'repeat_' + base + ext_audio)
         fake_image = torch.squeeze(fake_audio, 0)
@@ -83,13 +95,19 @@ def main(params):
         dir = os.path.dirname(audio_path)
         base, _ = os.path.splitext(os.path.basename(audio_path))
 
-        print('Reading audio...')
+        print('Reading ' + audio_str + '...')
         original_image_path = os.path.join(dir, 'original_' + base + ext_image)
         original_audio_path = os.path.join(dir, 'original_' + base + ext_audio)
-        setup.init_audio()
-        read_audio = AudioReader(size, audio_channels)
-        audio = read_audio(audio_path)
-        setup.shutdown_audio()
+
+        if params.midi:
+            read_audio = MidiReader(size, audio_channels)
+            audio = read_audio(audio_path)
+        else:
+            setup.init_audio()
+            read_audio = AudioReader(size, audio_channels)
+            audio = read_audio(audio_path)
+            setup.shutdown_audio()
+
         audio = torch.unsqueeze(audio, 0)
         audio_out = torch.squeeze(audio, 0)
         write_image(original_image_path, audio_out)
@@ -100,7 +118,7 @@ def main(params):
         fake_image = model.gen_b_to_a(audio)
         write_image(fake_image_path, torch.squeeze(fake_image, 0))
 
-        print('Generating cycle audio...')
+        print('Generating cycle ' + audio_str + '...')
         cycle_image_path = os.path.join(dir, 'cycle_' + base + ext_image)
         cycle_audio_path = os.path.join(dir, 'cycle_' + base + ext_audio)
         cycle_audio = model.gen_a_to_b(fake_image)
@@ -108,7 +126,7 @@ def main(params):
         write_image(cycle_image_path, cycle_audio_out)
         write_audio(cycle_audio_path, cycle_audio_out)
 
-        print('Generating diff audio...')
+        print('Generating diff ' + audio_str + '...')
         diff_image_path = os.path.join(dir, 'diff_' + base + ext_image)
         diff_audio_path = os.path.join(dir, 'diff_' + base + ext_audio)
         diff_audio = cycle_audio - audio
@@ -135,8 +153,9 @@ if __name__ == '__main__':
     optional.add_argument('--data_size', type=int, default=256, help='size of converted image or audio')
     required.add_argument('--checkpoint', help='path to model checkpoint', required=True)
     optional.add_argument('--image', help='path to image')
-    optional.add_argument('--audio', help='path to audio')
+    optional.add_argument('--music', help='path to music')
     optional.add_argument('--spectrogram', type=int, default=0, help='use spectrogram in audio transformation: 0 or 1')
+    optional.add_argument('--midi', type=int, default=0, help='use midi: 0 or 1')
     parser._action_groups.append(optional)
 
     params = parser.parse_args()
