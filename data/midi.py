@@ -17,6 +17,9 @@ class MidiTransform:
         else:
             image = transform.resize(image, (self.size, self.size),
                 anti_aliasing=False)
+            image = torch.from_numpy(image).float()
+            if len(image.shape) == 2:
+                image = torch.unsqueeze(image, 0)
 
         return image
 
@@ -41,3 +44,4 @@ class MidiWriter(Midi):
     def __call__(self, path, image):
         image = self.transform(image, reverse=True)
         image2midi(image, path)
+

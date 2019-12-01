@@ -14,8 +14,8 @@ class ConvertLakh(Dataset):
         key = self.names[i]
         try:
             midi2image(self.paths[key])
-        except MidiException:
-            pass
+        except Exception as e:
+            print(e)
         return i
 
     def __len__(self):
@@ -25,8 +25,9 @@ def main():
     device = setup.device()
 
     batch_size = 8
+    num_workers = 12
     dataset = ConvertLakh()
-    loader = setup.load(dataset, batch_size)
+    loader = setup.load(dataset, batch_size, num_workers)
 
     start_time = time.time()
 
