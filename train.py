@@ -25,7 +25,8 @@ def main(params):
         audio_channels=params.audio_channels,
         spectrogram=params.spectrogram != 0,
         cache=params.cache != 0,
-        validation=False
+        validation=False,
+        midi=params.midi != 0
     )
     train_loader = setup.load(train_dataset, batch_size)
 
@@ -36,7 +37,8 @@ def main(params):
         audio_channels=params.audio_channels,
         spectrogram=params.spectrogram != 0,
         cache=params.cache != 0,
-        validation=True
+        validation=True,
+        midi=params.midi != 0
     )
     val_loader = setup.load(val_dataset, batch_size)
 
@@ -121,6 +123,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_d', type=float, default=0.5, help='coefficient for discriminator loss')
     parser.add_argument('--emotion', type=int, default=0, help='concatenate emotion onto data: 0 or 1')
     parser.add_argument('--spectrogram', type=int, default=0, help='use spectrogram in audio transformation: 0 or 1')
+    parser.add_argument('--midi', type=int, default=0, help='use Lakh clean MIDI dataset instead of PMEmo: 0 or 1')
 
     params = parser.parse_args()
     main(params)

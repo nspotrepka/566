@@ -6,3 +6,4 @@ scikit-image
 scipy
 gdown
 tqdm
+music21
