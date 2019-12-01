@@ -66,7 +66,7 @@ class GAPED(Dataset):
         if key in self.image:
             image = self.image[key]
         else:
-            image = self.read_image(self.paths[self.names[i]])
+            image = self.read_image(self.paths[key])
             if self.cache:
                 self.image[key] = image
         emotion = self.read_emotion(self.emotion[i])
