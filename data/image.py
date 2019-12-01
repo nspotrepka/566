@@ -69,4 +69,5 @@ class ImageWriter(Image):
     def __call__(self, path, image):
         image = image / (1e-9 + torch.max(image.min().abs(), image.max().abs()))
         image = self.transform(image, reverse=True)
+        image = image.astype(np.uint8)
         io.imsave(path, image)
