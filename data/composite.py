@@ -67,7 +67,10 @@ class Composite(Dataset):
 
         # Number of in/out channels for neural network
         self.in_channels = self.gaped.channels
-        self.out_channels = self.pmemo.datasets[0].channels
+        if midi:
+            self.out_channels = self.lakh.channels
+        else:
+            self.pmemo.datasets[0].channels
         self.midi = midi
 
         # Set up loaders and iterators
