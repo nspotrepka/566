@@ -20,8 +20,6 @@ class BlurGAPED(Dataset):
             key = self.dataset2.names[i - size]
         path = self.dataset1.paths[key]
         image = transform.resize(image, (3, 64, 64), anti_aliasing=True)
-        #image = transform.resize(image, (3, 32, 32), anti_aliasing=True)
-        #image = transform.resize(image, (3, 64, 64), anti_aliasing=True)
         image = (image + 1) / 2 * 255
         image = image.astype(np.uint8)
         io.imsave(path.replace('.bmp', '.png'), image.T)
