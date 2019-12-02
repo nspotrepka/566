@@ -76,9 +76,11 @@ def main(params):
         fake_audio = model.gen_a_to_b(image)
         fake_audio_out = torch.squeeze(fake_audio, 0)
         write_image(fake_image_path, fake_audio_out)
-        transform = MidiTransform(size, audio_channels)
-        io.imsave(fake_midi_path, transform(fake_audio_out, reverse=True))
-        write_audio(fake_audio_path, fake_audio_out)
+        if params.midi:
+            transform = MidiTransform(size, audio_channels)
+            io.imsave(fake_midi_path, transform(fake_audio_out, reverse=True))
+        if not params.blur:
+            write_audio(fake_audio_path, fake_audio_out)
 
         print('Generating cycle image...')
         cycle_image_path = os.path.join(dir, 'cycle_' + base + ext_image)
@@ -114,7 +116,8 @@ def main(params):
         audio = torch.unsqueeze(audio, 0)
         audio_out = torch.squeeze(audio, 0)
         write_image(original_image_path, audio_out)
-        write_audio(original_audio_path, audio_out)
+        if not params.blur:
+            write_audio(original_audio_path, audio_out)
 
         print('Generating fake image...')
         fake_image_path = os.path.join(dir, 'fake_' + base + ext_image)
@@ -129,9 +132,11 @@ def main(params):
         cycle_audio = model.gen_a_to_b(fake_image)
         cycle_audio_out = torch.squeeze(cycle_audio, 0)
         write_image(cycle_image_path, cycle_audio_out)
-        transform = MidiTransform(size, audio_channels)
-        io.imsave(cycle_midi_path, transform(cycle_audio_out, reverse=True))
-        write_audio(cycle_audio_path, cycle_audio_out)
+        if params.midi:
+            transform = MidiTransform(size, audio_channels)
+            io.imsave(cycle_midi_path, transform(cycle_audio_out, reverse=True))
+        if not params.blur:
+            write_audio(cycle_audio_path, cycle_audio_out)
 
         print('Generating diff ' + audio_str + '...')
         diff_image_path = os.path.join(dir, 'diff_' + base + ext_image)
@@ -139,7 +144,8 @@ def main(params):
         diff_audio = cycle_audio - audio
         diff_audio_out = torch.squeeze(diff_audio, 0)
         write_image(diff_image_path, diff_audio_out)
-        write_audio(diff_audio_path, diff_audio_out)
+        if not params.blur:
+            write_audio(diff_audio_path, diff_audio_out)
 
     # Done
     print('Done')
