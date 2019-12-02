@@ -7,8 +7,11 @@ import torch.nn as nn
 
 class Generator(nn.Module):
     def __init__(self, in_channels, out_channels, filters=64, residual_layers=9,
-                 dropout=False, init_type='normal', init_scale=0.02):
+                 dropout=False, skip=False, init_type='normal',
+                 init_scale=0.02):
         super(Generator, self).__init__()
+
+        self.tanh = nn.Tanh()
 
         # Encoder
         self.encoder = nn.Sequential(
@@ -32,8 +35,7 @@ class Generator(nn.Module):
                 filters * 2, filters, kernel_size=3, stride=2, padding=1),
             ConvBlock(
                 filters, out_channels, kernel_size=7, stride=1, padding=3,
-                relu=False),
-            nn.Tanh())
+                relu=False))
 
         # Generator
         self.net = nn.Sequential(self.encoder, self.transformer, self.decoder)
@@ -44,4 +46,7 @@ class Generator(nn.Module):
             init_weights(module)
 
     def forward(self, x):
-        return self.net(x)
+        if self.skip:
+            return self.tanh(self.net(x) + x)
+        else:
+            return self.tanh(self.net(x))

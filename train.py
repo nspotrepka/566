@@ -56,6 +56,7 @@ def main(params):
         d_filters=params.d_filters,
         residual_layers=params.residual_layers,
         dropout=params.dropout != 0,
+        skip=params.skip != 0,
         learning_rate=params.lr,
         beta_1=params.b1,
         beta_2=params.b2,
@@ -114,6 +115,7 @@ if __name__ == '__main__':
     parser.add_argument('--b1', type=float, default=0.5, help='adam: decay of first order momentum of gradient')
     parser.add_argument('--b2', type=float, default=0.999, help='adam: decay of second order momentum of gradient')
     parser.add_argument('--dropout', type=int, default=0, help='use dropout in residual layers: 0 or 1')
+    parser.add_argument('--skip', type=int, default=0, help='use skip connections in generator: 0 or 1')
     parser.add_argument('--init_type', default='normal', help='weight initialization type: normal, xavier, kaiming, orthogonal')
     parser.add_argument('--init_scale', type=float, default=0.02, help='weight initialization scale')
     parser.add_argument('--pool_size_a', type=int, default=50, help='size of data pool A, which stores previous data batches')

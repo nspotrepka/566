@@ -14,16 +14,16 @@ import torch.nn as nn
 import torch.optim as optim
 
 # Test normal init vs. xavier normal init vs. kaiming vs. orthogonal
-# Test generator 64 vs. 32
-# Figure out how many epochs to train (128, 256, 512)
+# Test num generator filters 32 vs. 64
 
 class CycleGAN(pl.LightningModule):
     def __init__(self, train_loader, val_loader,
                  in_channels, out_channels, g_filters=64, d_filters=64,
-                 residual_layers=9, dropout=False, learning_rate=0.0002,
-                 beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
-                 pool_size_a=50, pool_size_b=50, lambda_a=10.0, lambda_b=10.0,
-                 lambda_id=0.0, lambda_g=1, lambda_d=1, epochs=200):
+                 residual_layers=9, dropout=False, skip=False,
+                 learning_rate=0.0002, beta_1=0.5, beta_2=0.999,
+                 init_type='normal', init_scale=0.02, pool_size_a=50,
+                 pool_size_b=50, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
+                 lambda_g=1, lambda_d=1, epochs=200):
         super(CycleGAN, self).__init__()
 
         self.hparams = Namespace(**{
@@ -33,6 +33,7 @@ class CycleGAN(pl.LightningModule):
             'd_filters': d_filters,
             'residual_layers': residual_layers,
             'dropout': dropout,
+            'skip': skip,
             'learning_rate': learning_rate,
             'beta_1': beta_1,
             'beta_2': beta_2,
@@ -67,11 +68,11 @@ class CycleGAN(pl.LightningModule):
 
         # A -> B
         self.gen_a_to_b = Generator(in_channels, out_channels, g_filters,
-                                    residual_layers, dropout, init_type,
+                                    residual_layers, dropout, skip, init_type,
                                     init_scale)
         # B -> A
         self.gen_b_to_a = Generator(out_channels, in_channels, g_filters,
-                                    residual_layers, dropout, init_type,
+                                    residual_layers, dropout, skip, init_type,
                                     init_scale)
         self.gen = nn.ModuleList([self.gen_a_to_b, self.gen_b_to_a])
 
