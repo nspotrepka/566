@@ -133,13 +133,24 @@ class CycleGAN(pl.LightningModule):
 
         self.loss_g = self.loss_gan + self.loss_cycle + self.loss_id
 
-        losses = {
-            'loss_g': self.loss_g,
-            'loss_gan_a': self.loss_gan_a,
-            'loss_gan_b': self.loss_gan_b,
-            'loss_cycle_a': self.loss_cycle_a,
-            'loss_cycle_b': self.loss_cycle_b
-        }
+        if self.lambda_id > 0.0:
+            losses = {
+                'loss_g': self.loss_g,
+                'loss_gan_a': self.loss_gan_a,
+                'loss_gan_b': self.loss_gan_b,
+                'loss_cycle_a': self.loss_cycle_a,
+                'loss_cycle_b': self.loss_cycle_b,
+                'loss_id_a': self.loss_id_a,
+                'loss_id_b': self.loss_id_b
+            }
+        else:
+            losses = {
+                'loss_g': self.loss_g,
+                'loss_gan_a': self.loss_gan_a,
+                'loss_gan_b': self.loss_gan_b,
+                'loss_cycle_a': self.loss_cycle_a,
+                'loss_cycle_b': self.loss_cycle_b
+            }
         return self.loss_g, losses
 
     def backward_d_func(self, net, real, fake):
