@@ -1,5 +1,6 @@
 from data.audio import Audio
 from data.gaped import GAPED
+from data.gaped import GAPED2
 from data.lakh import Lakh
 from data.pmemo import PMEmo
 import torch
@@ -38,7 +39,7 @@ class CompositeEmotion(Dataset):
 class Composite(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
                  spectrogram=False, cache=False, shuffle=True,
-                 validation=False, midi=False):
+                 validation=False, midi=False, blur=False):
         # Check for valid size
         assert size == 128 or size == 256 or size == 512
         chunks = int(Audio.full_length // Audio.length(size, spectrogram))
@@ -50,11 +51,17 @@ class Composite(Dataset):
             train_chunks = int(chunks * 0.5)
         val_chunks = chunks - train_chunks
 
+        self.midi = midi
+        self.blur = blur
+
         # Choose which subset of music to use
         self.gaped = GAPED(size, image_channels, cache=cache,
             validation=validation)
         if midi:
             self.lakh = Lakh(size, 1, cache=cache, validation=validation)
+        elif:
+            self.gaped2 = GAPED2(size, image_channels, cache=cache,
+            validation=validation)
         else:
             if validation:
                 self.pmemo = ConcatDataset(
@@ -69,15 +76,18 @@ class Composite(Dataset):
         self.in_channels = self.gaped.channels
         if midi:
             self.out_channels = self.lakh.channels
+        elif blur:
+            self.out_channels = self.gaped2.channels
         else:
             self.out_channels = self.pmemo.datasets[0].channels
-        self.midi = midi
 
         # Set up loaders and iterators
         self.image_loader = DataLoader(self.gaped, shuffle=shuffle)
         self.image_iter = iter(self.image_loader)
         if midi:
             self.audio_loader = DataLoader(self.lakh, shuffle=shuffle)
+        elif blur:
+            self.audio_loader = DataLoader(self.gaped2, shuffle=shuffle)
         else:
             self.audio_loader = DataLoader(self.pmemo, shuffle=shuffle)
         self.audio_iter = iter(self.audio_loader)
@@ -106,5 +116,7 @@ class Composite(Dataset):
     def __len__(self):
         if self.midi:
             return min(self.gaped.__len__(), self.lakh.__len__())
+        elif self.blur:
+            return min(self.gaped.__len__(), self.gaped2.__len__())
         else:
             return min(self.gaped.__len__(), self.pmemo.__len__())

@@ -15,8 +15,8 @@ import torch
 
 def main(params):
     size = params.data_size
-    image_path = params.image
-    audio_path = params.music
+    image_path = params.data_a
+    audio_path = params.data_b
 
     # Load model from checkpoint
     print('Loading model...')
@@ -34,6 +34,8 @@ def main(params):
             audio_channels = 4
         elif params.midi:
             audio_channels = 1
+        elif params.blur:
+            audio_channels = 3
         else:
             audio_channels = 2
         model = CycleGAN(None, None, image_channels, audio_channels)
@@ -45,12 +47,14 @@ def main(params):
     write_image = ImageWriter(size, image_channels)
     if params.midi:
         write_audio = MidiWriter(size, audio_channels)
+    elif params.blur:
+        write_audio = ImageWriter(size, image_channels)
     else:
         write_audio = AudioWriter(size, audio_channels)
     ext_image = '.png'
-    ext_audio = '.mid' if params.midi else '.wav'
+    ext_audio = '.mid' if params.midi else ('.png' if params.blur else '.wav')
 
-    audio_str = 'midi' if params.midi else 'audio'
+    audio_str = 'midi' if params.midi else ('image' if params.blur else 'audio')
 
     # Perform image to audio
     if image_path is not None:
@@ -98,6 +102,9 @@ def main(params):
         if params.midi:
             read_audio = MidiReader(size, audio_channels)
             audio = read_audio(audio_path)
+        elif params.blur:
+            read_audio = ImageReader(size, audio_channels)
+            audio = read_audio(audio_path)
         else:
             setup.init_audio()
             read_audio = AudioReader(size, audio_channels)
@@ -141,12 +148,13 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     optional = parser._action_groups.pop()
     required = parser.add_argument_group('required arguments')
-    optional.add_argument('--data_size', type=int, default=256, help='size of converted image or audio')
+    optional.add_argument('--data_size', type=int, default=256, help='size of converted image or music')
     required.add_argument('--checkpoint', help='path to model checkpoint', required=True)
-    optional.add_argument('--image', help='path to image')
-    optional.add_argument('--music', help='path to music')
+    optional.add_argument('--data_a', help='path to data A')
+    optional.add_argument('--data_b', help='path to data B')
     optional.add_argument('--spectrogram', type=int, default=0, help='use spectrogram in audio transformation: 0 or 1')
     optional.add_argument('--midi', type=int, default=0, help='use midi: 0 or 1')
+    optional.add_argument('--blur', type=int, default=0, help='use GAPED image: 0 or 1')
     parser._action_groups.append(optional)
 
     params = parser.parse_args()
