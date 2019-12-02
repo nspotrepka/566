@@ -11,7 +11,7 @@ def column2notes(column):
             notes.append(i + lowerBoundNote)
     return notes
 
-def updateNotes(newNotes,prevNotes):
+def updateNotes(newNotes, prevNotes):
     res = {}
     for note in newNotes:
         if note in prevNotes:
@@ -24,7 +24,7 @@ def image2midi(im_arr, path):
     offset = 0
     output_notes = []
 
-    prev_notes = updateNotes(im_arr.T[0, :], {})
+    prev_notes = {} #updateNotes(im_arr.T[0, :], {})
     for column in im_arr.T[1:, :]:
         notes = column2notes(column)
         # pattern is a chord

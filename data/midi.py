@@ -11,12 +11,20 @@ class MidiTransform:
 
     def __call__(self, image, reverse=False):
         if reverse:
+            image = torch.squeeze(image, 0)
             image = transform.resize(image, (128, 128))
-            image = filters.threshold_otsu(image)
+            threshold = filters.threshold_otsu(image)
+            image = image > threshold
+            image = image.astype(int) * 255
+            image = image.T
 
         else:
             image = transform.resize(image, (self.size, self.size),
                 anti_aliasing=False)
+            # Transpose dimensions
+            image = image.T
+            # Scale
+            image = image * 2 - 1
             image = torch.from_numpy(image).float()
             if len(image.shape) == 2:
                 image = torch.unsqueeze(image, 0)
@@ -44,4 +52,3 @@ class MidiWriter(Midi):
     def __call__(self, path, image):
         image = self.transform(image, reverse=True)
         image2midi(image, path)
-

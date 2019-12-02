@@ -120,7 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_b', type=float, default=10.0, help='coefficient for cycle B loss')
     parser.add_argument('--lambda_id', type=float, default=0.0, help='coefficient for identity loss, input/output dimension must match')
     parser.add_argument('--lambda_g', type=float, default=1, help='coefficient for generator loss')
-    parser.add_argument('--lambda_d', type=float, default=0.5, help='coefficient for discriminator loss')
+    parser.add_argument('--lambda_d', type=float, default=1, help='coefficient for discriminator loss')
     parser.add_argument('--emotion', type=int, default=0, help='concatenate emotion onto data: 0 or 1')
     parser.add_argument('--spectrogram', type=int, default=0, help='use spectrogram in audio transformation: 0 or 1')
     parser.add_argument('--midi', type=int, default=0, help='use Lakh clean MIDI dataset instead of PMEmo: 0 or 1')

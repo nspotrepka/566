@@ -6,9 +6,11 @@ from data.audio import AudioWriter
 from data.image import ImageReader
 from data.image import ImageWriter
 from data.midi import MidiReader
+from data.midi import MidiTransform
 from data.midi import MidiWriter
 from models.cyclegan.model import CycleGAN
 import os
+from skimage import io
 import torch
 
 def main(params):
@@ -120,10 +122,13 @@ def main(params):
 
         print('Generating cycle ' + audio_str + '...')
         cycle_image_path = os.path.join(dir, 'cycle_' + base + ext_image)
+        cycle_midi_path = os.path.join(dir, 'cycle_midi' + base + ext_image)
         cycle_audio_path = os.path.join(dir, 'cycle_' + base + ext_audio)
         cycle_audio = model.gen_a_to_b(fake_image)
         cycle_audio_out = torch.squeeze(cycle_audio, 0)
         write_image(cycle_image_path, cycle_audio_out)
+        transform = MidiTransform(size, audio_channels)
+        io.imsave(cycle_midi_path, transform(cycle_audio_out, reverse=True))
         write_audio(cycle_audio_path, cycle_audio_out)
 
         print('Generating diff ' + audio_str + '...')

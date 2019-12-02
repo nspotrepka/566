@@ -23,7 +23,7 @@ class CycleGAN(pl.LightningModule):
                  residual_layers=9, dropout=False, learning_rate=0.0002,
                  beta_1=0.5, beta_2=0.999, init_type='normal', init_scale=0.02,
                  pool_size_a=50, pool_size_b=50, lambda_a=10.0, lambda_b=10.0,
-                 lambda_id=0.0, lambda_g=1, lambda_d=0.5, epochs=200):
+                 lambda_id=0.0, lambda_g=1, lambda_d=1, epochs=200):
         super(CycleGAN, self).__init__()
 
         self.hparams = Namespace(**{

@@ -10,15 +10,15 @@ class ImageTransform:
 
     def __call__(self, image, reverse=False):
         if reverse:
+            # Unscale
+            image = (image + 1) / 2 * 255
             # Pad channels
-            channel_pad = max(0, self.image_channels - image.shape[0])
+            channel_pad = 1 if image.shape[0] == 2 else 0
             image = util.pad(
                 image,
                 ((0, channel_pad), (0, 0), (0, 0)),
                 mode='constant'
             )
-            # Unscale
-            image = (image + 1) / 2 * 255
             # Transpose dimensions
             image = image.T
         else:
