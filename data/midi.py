@@ -11,6 +11,7 @@ class MidiTransform:
 
     def __call__(self, image, reverse=False):
         if reverse:
+            image = torch.flip(image, [2])
             image = torch.squeeze(image, 0)
             image = transform.resize(image, (128, 128))
             threshold = filters.threshold_otsu(image)
@@ -28,6 +29,7 @@ class MidiTransform:
             image = torch.from_numpy(image).float()
             if len(image.shape) == 2:
                 image = torch.unsqueeze(image, 0)
+            image = torch.flip(image, [2])
 
         return image
 
