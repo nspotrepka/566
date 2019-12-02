@@ -11,10 +11,10 @@ from torch.utils.data import DataLoader
 class CompositeEmotion(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
                  spectrogram=False, cache=False, shuffle=True,
-                 validation=False, midi=False):
+                 validation=False, midi=False, blur=False):
         self.composite = Composite(size, image_channels, audio_channels,
                                    spectrogram, cache, shuffle, validation,
-                                   midi)
+                                   midi, blur)
         self.in_channels = self.composite.in_channels + 4
         self.out_channels = self.composite.out_channels + 4
 
@@ -59,9 +59,9 @@ class Composite(Dataset):
             validation=validation)
         if midi:
             self.lakh = Lakh(size, 1, cache=cache, validation=validation)
-        elif:
+        elif blur:
             self.gaped2 = GAPED2(size, image_channels, cache=cache,
-            validation=validation)
+                validation=validation)
         else:
             if validation:
                 self.pmemo = ConcatDataset(
