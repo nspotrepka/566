@@ -12,6 +12,7 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
 
         self.tanh = nn.Tanh()
+        self.skip = skip
 
         # Encoder
         self.encoder = nn.Sequential(
