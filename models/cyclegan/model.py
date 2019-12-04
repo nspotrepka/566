@@ -21,7 +21,7 @@ class CycleGAN(pl.LightningModule):
                  in_channels, out_channels, g_filters=64, d_filters=64,
                  residual_layers=9, dropout=False, skip=False,
                  learning_rate=0.0002, beta_1=0.5, beta_2=0.999,
-                 init_type='normal', init_scale=0.02, pool_size_a=50,
+                 init_type='normal', init_scale=0.02, pool_size=50, pool_size_a=50,
                  pool_size_b=50, lambda_a=10.0, lambda_b=10.0, lambda_id=0.0,
                  lambda_g=1, lambda_d=1, epochs=200):
         super(CycleGAN, self).__init__()
@@ -205,17 +205,17 @@ class CycleGAN(pl.LightningModule):
             betas=(self.beta_1, self.beta_2))
         self.optimizers = [self.optimizer_g, self.optimizer_d]
 
-        def lr_lambda(epoch):
-            half = self.epochs // 2
-            return 1.0 - max(0, epoch - half) / float(half + 1)
+        # def lr_lambda(epoch):
+        #     half = self.epochs // 2
+        #     return 1.0 - max(0, epoch - half) / float(half + 1)
 
         # Schedulers
-        self.schedulers = [
-            optim.lr_scheduler.LambdaLR(self.optimizer_g, lr_lambda=lr_lambda),
-            optim.lr_scheduler.LambdaLR(self.optimizer_d, lr_lambda=lr_lambda)
-        ]
+        # self.schedulers = [
+        #     optim.lr_scheduler.LambdaLR(self.optimizer_g, lr_lambda=lr_lambda),
+        #     optim.lr_scheduler.LambdaLR(self.optimizer_d, lr_lambda=lr_lambda)
+        # ]
 
-        return self.optimizers, self.schedulers
+        return self.optimizers #, self.schedulers
 
     def training_step(self, batch, batch_nb, optimizer_i):
         if self.gd < -1 or self.gd > 1:
