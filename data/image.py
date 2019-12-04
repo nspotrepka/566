@@ -10,8 +10,9 @@ class ImageTransform:
 
     def __call__(self, image, reverse=False):
         if reverse:
-            # Unscale
-            image = (image + 1) / 2 * 255
+            # Normalize
+            image = (image - image.min()) / (1e-9 + image.max() - image.min())
+            image *= 255
             # Pad channels
             channel_pad = 1 if image.shape[0] == 2 else 0
             image = util.pad(
@@ -68,7 +69,6 @@ class ImageWriter(Image):
         super(ImageWriter, self).__init__(size, image_channels)
 
     def __call__(self, path, image):
-        image = image / (1e-9 + torch.max(image.min().abs(), image.max().abs()))
         image = self.transform(image, reverse=True)
         image = image.astype(np.uint8)
         io.imsave(path, image)
