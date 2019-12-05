@@ -138,6 +138,7 @@ class CompositeValence(Composite):
         except StopIteration:
             iterator = iter(loader)
             data, emotion = iterator.next()
+            positive = torch.squeeze(emotion, 0)[1] > 0
         while data.min() == 0 and data.max() == 0 or positive != self.positive:
             data, emotion = iterator.next()
             positive = torch.squeeze(emotion, 0)[1] > 0
