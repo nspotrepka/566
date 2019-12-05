@@ -145,6 +145,12 @@ class CompositeValence(Composite):
         emotion = torch.squeeze(emotion, 0)
         return (iterator, data, emotion)
 
+    def __len__(self):
+        if self.midi:
+            return min(self.gaped.__len__(), self.lakh.__len__()) / 2
+        else:
+            return min(self.gaped.__len__(), self.pmemo.__len__()) / 2
+
 class CompositePositive(CompositeValence):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
                  cache=False, shuffle=True, validation=False, midi=False):

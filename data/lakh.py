@@ -51,7 +51,10 @@ class Lakh(Dataset):
             image = self.read_midi(self.paths[key])
             if self.cache:
                 self.image[key] = image
-        emotion = torch.zeros([4]).float()
+        # Generate random emotion
+        mean = torch.empty(2).uniform_(from=-1, to=1).float()
+        std = torch.empty(2).normal_(mean=0, std=0.333).float()
+        emotion = torch.cat([mean, std])
         return image, emotion
 
     def __len__(self):
