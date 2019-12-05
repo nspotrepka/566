@@ -29,5 +29,4 @@ class EmotionReader(Emotion):
     def __call__(self, emotion):
         emotion = self.transform(emotion)
         emotion = torch.from_numpy(emotion)
-        print(emotion)
         return emotion.float()
