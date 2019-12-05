@@ -134,7 +134,7 @@ class CompositeValence(Composite):
     def __next__(self, iterator, loader):
         data = torch.zeros(1)
         positive = not self.positive
-        print('Loading positive=' + positive)
+        print('Loading positive=' + str(positive))
         while data.min() == 0 and data.max() == 0 or positive != self.positive:
             try:
                 data, emotion = iterator.next()
