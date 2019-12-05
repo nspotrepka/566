@@ -134,22 +134,22 @@ class CompositeValence(Composite):
     def __next__(self, iterator, loader):
         try:
             data, emotion = iterator.next()
-            positive = emotion[1] > 0
+            positive = torch.squeeze(emotion, 0)[1] > 0
         except StopIteration:
             iterator = iter(loader)
             data, emotion = iterator.next()
         while data.min() == 0 and data.max() == 0 or positive != self.positive:
             data, emotion = iterator.next()
-            positive = emotion[1] > 0
+            positive = torch.squeeze(emotion, 0)[1] > 0
         data = torch.squeeze(data, 0)
         emotion = torch.squeeze(emotion, 0)
         return (iterator, data, emotion)
 
     def __len__(self):
         if self.midi:
-            return min(self.gaped.__len__(), self.lakh.__len__()) / 2
+            return min(self.gaped.__len__(), self.lakh.__len__()) // 2
         else:
-            return min(self.gaped.__len__(), self.pmemo.__len__()) / 2
+            return min(self.gaped.__len__(), self.pmemo.__len__()) // 2
 
 class CompositePositive(CompositeValence):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
