@@ -132,16 +132,14 @@ class CompositeValence(Composite):
         self.positive = positive
 
     def __next__(self, iterator, loader):
-        try:
-            data, emotion = iterator.next()
-            positive = torch.squeeze(emotion, 0)[1] > 0
-        except StopIteration:
-            iterator = iter(loader)
-            data, emotion = iterator.next()
-            positive = torch.squeeze(emotion, 0)[1] > 0
+        data = torch.zeros(1)
+        positive = not self.positive
         while data.min() == 0 and data.max() == 0 or positive != self.positive:
-            data, emotion = iterator.next()
-            positive = torch.squeeze(emotion, 0)[1] > 0
+            try:
+                data, emotion = iterator.next()
+            except StopIteration:
+                iterator = iter(loader)
+                data, emotion = iterator.next()
         data = torch.squeeze(data, 0)
         emotion = torch.squeeze(emotion, 0)
         return (iterator, data, emotion)
@@ -159,7 +157,6 @@ class CompositePositive(CompositeValence):
             audio_channels, cache, shuffle, validation, midi, True)
 
     def __next__(self, iterator, loader):
-        print('positive next')
         return super(CompositePositive, self).__next__(iterator, loader)
 
 class CompositeNegative(CompositeValence):
@@ -169,5 +166,4 @@ class CompositeNegative(CompositeValence):
             audio_channels, cache, shuffle, validation, midi, False)
 
     def __next__(self, iterator, loader):
-        print('negative next')
         return super(CompositeNegative, self).__next__(iterator, loader)
