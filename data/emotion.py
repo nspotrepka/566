@@ -1,20 +1,22 @@
+import numpy as np
 import torch
 
 class EmotionTransform:
     def __call__(self, emotion, reverse=False):
+        new_emotion = np.array(emotion)
         if reverse:
             # Add 1 to mean
             for i in range(2):
-                emotion[i] = emotion[i] + 1
+                new_emotion[i] = new_emotion[i] + 1
             # Unscale
-            emotion *= 0.5
+            new_emotion *= 0.5
         else:
             # Scale
-            emotion *= 2
+            new_emotion *=  2
             # Subtract 1 from mean
             for i in range(0, 2):
-                emotion[i] = emotion[i] - 1
-        return emotion
+                new_emotion[i] = new_emotion[i] - 1
+        return new_emotion
 
 class Emotion:
     def __init__(self):
