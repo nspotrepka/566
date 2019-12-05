@@ -267,6 +267,7 @@ class CycleVAEGAN(pl.LightningModule):
         dict = {
             'val_loss': avg_loss
         }
+        print('Validation Loss:', avg_loss)
         return OrderedDict({
             'avg_val_loss': avg_loss,
             'progress_bar': dict,
