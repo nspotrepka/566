@@ -160,7 +160,7 @@ class CompositePositive(CompositeValence):
 
     def __next__(self, iterator, loader):
         print('positive next')
-        return super(CompositePositive, self).__next__(self, iterator loader)
+        return super(CompositePositive, self).__next__(self, iterator, loader)
 
 class CompositeNegative(CompositeValence):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
@@ -170,4 +170,4 @@ class CompositeNegative(CompositeValence):
 
     def __next__(self, iterator, loader):
         print('negative next')
-        return super(CompositeNegative, self).__next__(self, iterator loader)
+        return super(CompositeNegative, self).__next__(self, iterator, loader)
