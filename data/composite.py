@@ -8,34 +8,6 @@ from torch.utils.data import ConcatDataset
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
-class CompositeEmotion(Dataset):
-    def __init__(self, size=256, image_channels=3, audio_channels=2,
-                 spectrogram=False, cache=False, shuffle=True,
-                 validation=False, midi=False, blur=False):
-        self.composite = Composite(size, image_channels, audio_channels,
-                                   spectrogram, cache, shuffle, validation,
-                                   midi, blur)
-        self.in_channels = self.composite.in_channels + 4
-        self.out_channels = self.composite.out_channels + 4
-
-    def __getitem__(self, i):
-        image_batch, audio_batch = self.composite.__getitem__(i)
-        image, image_emotion = image_batch
-        audio, audio_emotion = audio_batch
-        image_emotion = image_emotion[:2]
-        audio_emotion = audio_emotion[:2]
-        shape = [image.shape[2], image.shape[1], image_emotion.shape[0]]
-        image_emotion = image_emotion.expand(shape).T
-        audio_emotion = audio_emotion.expand(shape).T
-        image_emotion += torch.randn(image_emotion.shape) * 1e-9
-        audio_emotion += torch.randn(audio_emotion.shape) * 1e-9
-        image = torch.cat([image, image_emotion, audio_emotion])
-        audio = torch.cat([audio, audio_emotion, image_emotion])
-        return [image, []], [audio, []]
-
-    def __len__(self):
-        return self.composite.__len__()
-
 class Composite(Dataset):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
                  spectrogram=False, cache=False, shuffle=True,
@@ -120,3 +92,67 @@ class Composite(Dataset):
             return min(self.gaped.__len__(), self.gaped2.__len__())
         else:
             return min(self.gaped.__len__(), self.pmemo.__len__())
+
+# Stack zipped data with emotion
+class CompositeEmotion(Dataset):
+    def __init__(self, size=256, image_channels=3, audio_channels=2,
+                 spectrogram=False, cache=False, shuffle=True,
+                 validation=False, midi=False, blur=False):
+        self.composite = Composite(size, image_channels, audio_channels,
+                                   spectrogram, cache, shuffle, validation,
+                                   midi, blur)
+        self.in_channels = self.composite.in_channels + 4
+        self.out_channels = self.composite.out_channels + 4
+
+    def __getitem__(self, i):
+        image_batch, audio_batch = self.composite.__getitem__(i)
+        image, image_emotion = image_batch
+        audio, audio_emotion = audio_batch
+        image_emotion = image_emotion[:2]
+        audio_emotion = audio_emotion[:2]
+        shape = [image.shape[2], image.shape[1], image_emotion.shape[0]]
+        image_emotion = image_emotion.expand(shape).T
+        audio_emotion = audio_emotion.expand(shape).T
+        image_emotion += torch.randn(image_emotion.shape) * 1e-9
+        audio_emotion += torch.randn(audio_emotion.shape) * 1e-9
+        image = torch.cat([image, image_emotion, audio_emotion])
+        audio = torch.cat([audio, audio_emotion, image_emotion])
+        return [image, []], [audio, []]
+
+    def __len__(self):
+        return self.composite.__len__()
+
+class CompositeValence(Composite):
+    def __init__(self, size=256, image_channels=3, audio_channels=2,
+                 cache=False, shuffle=True, validation=False, midi=False,
+                 positive=True):
+        super(CompositeValence, self).__init__(size, image_channels,
+            audio_channels, False, cache, shuffle, validation, midi, False)
+
+        self.positive = positive
+
+    def __next__(self, iterator, loader):
+        try:
+            data, emotion = iterator.next()
+            positive = emotion[1] > 0
+        except StopIteration:
+            iterator = iter(loader)
+            data, emotion = iterator.next()
+        while data.min() == 0 and data.max() == 0 or positive != self.positive:
+            data, emotion = iterator.next()
+            positive = emotion[1] > 0
+        data = torch.squeeze(data, 0)
+        emotion = torch.squeeze(emotion, 0)
+        return (iterator, data, emotion)
+
+class CompositePositive(CompositeValence):
+    def __init__(self, size=256, image_channels=3, audio_channels=2,
+                 cache=False, shuffle=True, validation=False, midi=False):
+        super(CompositePositive, self).__init__(size, image_channels,
+            audio_channels, cache, shuffle, validation, midi, True)
+
+class CompositeNegative(CompositeValence):
+    def __init__(self, size=256, image_channels=3, audio_channels=2,
+                 cache=False, shuffle=True, validation=False, midi=False):
+        super(CompositePositive, self).__init__(size, image_channels,
+            audio_channels, cache, shuffle, validation, midi, False)
