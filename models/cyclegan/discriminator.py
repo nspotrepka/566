@@ -4,7 +4,7 @@ import torch.nn as nn
 
 class Discriminator(nn.Module):
     def __init__(self, in_channels, filters=64, init_type='normal',
-                 init_scale=0.02, extra=False):
+                 init_scale=0.02):
         super(Discriminator, self).__init__()
 
         # Discriminator

@@ -16,12 +16,12 @@ class ConvBlock(nn.Module):
 
 class ConvTransposeBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size,
-            stride=1, padding=0, relu=True):
+            stride=1, padding=0, output_padding=0, relu=True):
         super(ConvTransposeBlock, self).__init__()
 
         self.net = nn.Sequential(
             nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride,
-                padding=padding, output_padding=padding),
+                padding=padding, output_padding=output_padding),
             nn.InstanceNorm2d(out_channels, affine=True),
             nn.ReLU(True) if relu else nn.Identity())
 
