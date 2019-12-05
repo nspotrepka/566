@@ -52,8 +52,8 @@ class Lakh(Dataset):
             if self.cache:
                 self.image[key] = image
         # Generate random emotion
-        mean = torch.empty(2).uniform_(from=-1, to=1).float()
-        std = torch.empty(2).normal_(mean=0, std=0.333).float()
+        mean = torch.empty(2).uniform_(-1, 1).float()
+        std = torch.empty(2).normal_(mean=0, std=0.25).float()
         emotion = torch.cat([mean, std])
         return image, emotion
 
