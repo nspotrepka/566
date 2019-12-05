@@ -160,5 +160,5 @@ class CompositePositive(CompositeValence):
 class CompositeNegative(CompositeValence):
     def __init__(self, size=256, image_channels=3, audio_channels=2,
                  cache=False, shuffle=True, validation=False, midi=False):
-        super(CompositePositive, self).__init__(size, image_channels,
+        super(CompositeNegative, self).__init__(size, image_channels,
             audio_channels, cache, shuffle, validation, midi, False)
