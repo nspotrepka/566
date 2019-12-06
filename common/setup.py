@@ -1,7 +1,6 @@
 import os
 import torch
 from torch.utils.data import DataLoader
-from torch.nn import DataParallel
 import torchaudio
 
 def torch_version():
