@@ -1,7 +1,10 @@
-# Mario
+# 566
 
-**Mario** is a research project exploring the relationships between art and
-music through deep learning.
+In this project, we uncover hidden possibilities for using deep neural networks
+in the creative domain. Beginning with the intention of translating image into
+music and vice versa, we stubble upon an entirely different use case for our
+CycleGAN model. By applying a filter to our training images, we create a
+two-step transformation that generates artifacts to obtain a unique style.
 
 ## Setup
 
